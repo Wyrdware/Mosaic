@@ -1,0 +1,25 @@
+{
+  "name": "com.jared-goronkin.mosaic",
+  "version": "1.0.0",
+  "displayName": "Mosaic: Unified Action Framework",
+  "description": "A tool that modularizes the creation of characters and their behavior within games, reducing complexity creep and coupling, and facilitating scalability in development.",
+  "unity": "2021.3",
+  "unityRelease": "25f1",
+  "documentationUrl": "https://jgoronkin.atlassian.net/wiki/x/aYAo",
+  "changelogUrl": "https://jgoronkin.atlassian.net/wiki/x/DgAq",
+  "licensesUrl": "https://jgoronkin.atlassian.net/wiki/x/EQAp",
+  "keywords": [
+    "unified",
+    "action",
+    "framework",
+    "modular",
+    "character",
+    "controller",
+    "state"
+  ],
+  "author": {
+    "name": "Jared Goronkin",
+    "email": "jgoronkin@gmail.com",
+    "url": "https://www.jaredgoronkin.com"
+  }
+}
