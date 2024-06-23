@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace ModularCharacter
+namespace Mosaic
 {
     /// <summary>
     /// One of the two default components required for a character to function.
@@ -11,9 +11,9 @@ namespace ModularCharacter
     [RequireComponent(typeof(ICharacterCore))]
     public abstract class CharacterInput : MonoBehaviour
     {
-        protected StateInstance stateInstance;
+        protected BehaviorInstance stateInstance;
 
-        public void OverrideControl(StateInstance cco)
+        public void OverrideControl(BehaviorInstance cco)
         {
 
             if (this.stateInstance != null)
