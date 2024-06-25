@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ModularCharacter
+namespace Mosaic
 {
     [CreateAssetMenu(fileName = "TestMod", menuName = "CharacterModule / Modifier / TestMod", order = 1)]
     public class TestModifier : CModifierDuration
     {
+        ModifierEventType testType;
         protected override void Begin()
         {
             _tick = new WaitForSeconds(0.5f);
@@ -15,7 +16,7 @@ namespace ModularCharacter
 
         protected override void End()
         {
-            _target.ModifierEvents.ActivateEvent(ModifierEventHandler.ModifierEventType.Jump);
+            _target.ModifierEvents.ActivateEvent(testType);
             Debug.Log("End modifier attatched to " + _target.gameObject.name);
         }
 

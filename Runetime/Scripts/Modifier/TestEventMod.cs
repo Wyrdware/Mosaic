@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ModularCharacter
+namespace Mosaic
 {
     [CreateAssetMenu(fileName = "TestMod2", menuName = "CharacterModule / Modifier / TestMod2", order = 1)]
     public class TestEventMod : CModifierDuration

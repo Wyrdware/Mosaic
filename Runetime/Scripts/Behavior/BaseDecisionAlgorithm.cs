@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace ModularCharacter
+namespace Mosaic
 {
     public abstract class BaseDecisionAlgorithm : ScriptableObject
     {

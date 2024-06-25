@@ -4,9 +4,13 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.TextCore.Text;
 
-namespace ModularCharacter
+namespace Mosaic
 {
-    public abstract class StateInstance : MonoBehaviour 
+
+    /// <summary>
+    /// The fundamental building blocks of a Mosaic Action. 
+    /// </summary>
+    public abstract class BehaviorInstance : MonoBehaviour 
     {
         private ICharacterCore _character;
         protected IDataTagRepository DataTags => _character.DataTags;
@@ -16,33 +20,16 @@ namespace ModularCharacter
         private Transform _targetRootBone;
         [SerializeField]
         private Transform _targetSMRContainer;
-        
-
-
-
-        protected virtual void Start()
-        {
-            if (_targetRootBone != null && _targetSMRContainer != null)
-            {
-                _character.Models.AttachCharacterModel(_targetRootBone, _targetSMRContainer);
-            }
-            else
-            {
-                Debug.LogWarning("State is not utilizing character model!");
-            }
-           
-        }
-
 
         #region Entry/Exit
-        public static StateInstance EnterNewStateInstance(GameObject statePrefab, CharacterCore character) //state instance factory
+        public static BehaviorInstance EnterNewStateInstance(GameObject statePrefab, Core character) //state instance factory
         {
             TransformDataTag transformDataTag = character.DataTags.GetTag<TransformDataTag>();
 
             GameObject stateInstanceGO = Instantiate(statePrefab, transformDataTag.Position, transformDataTag.Rotation, character.transform.parent);
 
 
-            StateInstance stateInstance = stateInstanceGO.GetComponent<StateInstance>() ;
+            BehaviorInstance stateInstance = stateInstanceGO.GetComponent<BehaviorInstance>() ;
             stateInstance._character = character;
 
 
@@ -62,7 +49,7 @@ namespace ModularCharacter
 
         public void Exit()// This is called whenever the state is exited by the state machine.
         {
-            OnExit();
+            OnExit();// Exit is not virtual because the exectution of OnExit must occur after all other processes have resolved.
 
             TransformDataTag transformDataTag = _character.DataTags.GetTag<TransformDataTag>();
             transformDataTag.Position = transform.position;

@@ -4,22 +4,22 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace ModularCharacter
+namespace Mosaic
 {
     public class StateMachine : IStateMachine
     {
-        private CharacterCore _character;
+        private Core _character;
 
-        private CState _defaultState;//only active if all else is 0. 
+        private Behavior _defaultState;//only active if all else is 0. 
 
-        private List<CState> _characterStates;
+        private List<Behavior> _characterStates;
 
-        private CState _currentModule; // we save the entire module instead of something like the index because the size of the list is highly dynamic.
+        private Behavior _currentModule; // we save the entire module instead of something like the index because the size of the list is highly dynamic.
 
-        private StateInstance _currentStateInstance;
+        private BehaviorInstance _currentStateInstance;
 
 
-        public StateMachine(CharacterCore character, CState defaultModule, List<CState> characterStates)
+        public StateMachine(Core character, Behavior defaultModule, List<Behavior> characterStates)
         {
             this._character = character;
             this._defaultState = defaultModule;
@@ -37,16 +37,16 @@ namespace ModularCharacter
             Transition(_defaultState);
         }            
 
-        public void AddState(CState state)
+        public void AddState(Behavior state)
         {
             _characterStates.Add(state);
         }
-        public void RemoveState(CState state)
+        public void RemoveState(Behavior state)
         {
             _characterStates.Remove(state);
         }
 
-        public void Transition(CState.CharacterInputType input)// Calculates the next apropriate state to transition to
+        public void Transition(BehaviorInputType input)// Calculates the next apropriate state to transition to
         {
             
             if (_currentStateInstance != null)
@@ -55,10 +55,10 @@ namespace ModularCharacter
                 _currentStateInstance = null;
             }
             
-            CState nextState = CState.DecideNewState(_characterStates, _character, _currentModule.State, input);
+            Behavior nextState = Behavior.DecideNewState(_characterStates, _character, _currentModule.State, input);
             EnterNewState(nextState);
         }
-        public void Transition(CState nextState)
+        public void Transition(Behavior nextState)
         {
             
             if (_currentStateInstance != null)
@@ -68,7 +68,7 @@ namespace ModularCharacter
             }
             EnterNewState(nextState);
         }
-        private void EnterNewState(CState nextState)//choose a new state, This module doesn't need to be housed within this class.
+        private void EnterNewState(Behavior nextState)//choose a new state, This module doesn't need to be housed within this class.
         {
 
 
@@ -80,22 +80,22 @@ namespace ModularCharacter
 
             _character.Input.OverrideControl(null);
             _currentModule = nextState;
-            _currentStateInstance = StateInstance.EnterNewStateInstance(nextState.ModuleState, _character);
+            _currentStateInstance = BehaviorInstance.EnterNewStateInstance(nextState.ModuleState, _character);
             Debug.Log("Transition to new state! " + _currentModule + ", " + _currentStateInstance);
         }
 
-        public StateInstance GetCurrentStateInstance()
+        public BehaviorInstance GetCurrentStateInstance()
         {
             return _currentStateInstance;
         }
     }
     public interface IStateMachine
     {
-        public StateInstance GetCurrentStateInstance();
-        public void AddState(CState state);
-        public void RemoveState(CState state);
-        public void Transition(CState.CharacterInputType characterInput);
-        public void Transition(CState nextState);
+        public BehaviorInstance GetCurrentStateInstance();
+        public void AddState(Behavior state);
+        public void RemoveState(Behavior state);
+        public void Transition(BehaviorInputType behaviorInput);
+        public void Transition(Behavior nextState);
 
     }
 }

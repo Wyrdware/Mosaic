@@ -5,34 +5,28 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace ModularCharacter
+namespace Mosaic
 {
 
     /// <summary>
-    /// One of the two default components required for the character to function.
+    /// One of the base components required for the construction of a Mosaic actor.
     /// </summary>
     [RequireComponent(typeof(CharacterInput))]
-    public class CharacterCore : MonoBehaviour, ICharacterCore
+    public class Core : MonoBehaviour, ICharacterCore
     {
-        [Header("Starting Values")]
         [SerializeField]
-        private CState _defaultState;
-
-
-        [Header("Character Modules")]
+        private Behavior _defaultBehavior;
         [SerializeField]
-        private List<CState> _states;
-        [SerializeField]
-        private List<CModel> _models;
+        private List<Behavior> _behaviors;
         [SerializeField]
         private List<Modifier> _modifiers;
         [SerializeField]
         private List<ModifierEventHandler.EventMods> _eventModifiers;
+
         private StateMachine _stateMachine;
 
         public CharacterInput Input { get; private set; }
         public IDataTagRepository DataTags { get; private set; }
-        public ModelGenerator Models { get; private set; }// TODO: Don't generate the model, activate different parts from a single model with all the pieces attatched
         public ModifierHandler Modifiers { get; private set; }
         public ModifierEventHandler ModifierEvents { get; private set; }
 
@@ -45,8 +39,7 @@ namespace ModularCharacter
 
             Input = GetComponent<CharacterInput>();
             DataTags = new DataTagRepository();
-            Models = new ModelGenerator(_models);
-            _stateMachine = new StateMachine(this, _defaultState, _states);
+            _stateMachine = new StateMachine(this, _defaultBehavior, _behaviors);
             Modifiers = new ModifierHandler(this, _modifiers);
             ModifierEvents = new ModifierEventHandler(this, _eventModifiers);
 
@@ -60,7 +53,6 @@ namespace ModularCharacter
         public GameObject gameObject { get; }
         public Transform transform { get; }
         public IDataTagRepository DataTags { get; }
-        public ModelGenerator Models { get; }// TODO: Don't generate the model, activate different parts from a single model with all the pieces attatched
         public ModifierHandler Modifiers { get;}
         public ModifierEventHandler ModifierEvents { get;}
 

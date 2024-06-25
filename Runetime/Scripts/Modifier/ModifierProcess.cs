@@ -5,7 +5,7 @@ using System.Dynamic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace ModularCharacter
+namespace Mosaic
 {
     [System.Serializable] 
     public class Modifier

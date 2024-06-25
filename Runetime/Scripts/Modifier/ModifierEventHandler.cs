@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace ModularCharacter
+namespace Mosaic
 {
     public class ModifierEventHandler
     {
-
-        public enum ModifierEventType { Hit, Jump, Block, Attack, HeavyAttack }
         [System.Serializable]
         public struct EventMods
         {
