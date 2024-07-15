@@ -9,20 +9,20 @@ namespace Mosaic
     {
         protected override void Begin()
         {
-            _tick = new WaitForSeconds(0.6f);
-            Debug.Log("Begin modifier attatched to " + _target.gameObject.name);
+            Yield = new WaitForSeconds(0.6f);
+            Debug.Log("Begin modifier attatched to " + Core.gameObject.name);
         }
 
         protected override void End()
         {
-            Debug.Log("End modifier attatched to " + _target.gameObject.name);
+            Debug.Log("End modifier attatched to " + Core.gameObject.name);
         }
 
         protected override void Tick()
         {
             
-            Debug.Log("Tick modifier attatched to " + _target.gameObject.name);
-            Transform modLocation = _target.StateMachine.GetCurrentStateInstance().transform;
+            Debug.Log("Tick modifier attatched to " + Core.gameObject.name);
+            Transform modLocation = Core.StateMachine.GetCurrentStateInstance().transform;
             modLocation.Rotate(0,10,0);
         }
 

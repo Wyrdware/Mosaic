@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,21 +9,26 @@ namespace Mosaic
     {
         private readonly List<ModifierProcess> _modifiers= new();
         private readonly ICharacterCore _core;
-        public ModifierHandler(ICharacterCore core, List<Modifier> modifiers)
+        private readonly Dictionary<Type, List<ModifierProcessDecorator>> _modifierDecorators = new();
+        public ModifierHandler(ICharacterCore core, List<ModifierProcess> modifiers)
         {
             _core = core;
-            foreach(Modifier modifier in modifiers)
+            foreach(ModifierProcess modifier in modifiers)
             {
-                ActivateMod(modifier);
+                ApplyModifier(modifier, _core);
             }
         }
 
-
-        
-        public ModifierProcess ActivateMod(Modifier modifier)
+        /*   public ModifierProcessDecorator ApplyModifierDecorator(ModifierProcessDecorator modifier, ICharacterCore origin)
+           {
+               ModifierProcessDecorator newModifierDecorator = ModifierProcessDecorator.CreateModifier(modifier, _core, origin) as ModifierProcessDecorator;
+               return;
+           }
+           */
+        public ModifierProcess ApplyModifier(ModifierProcess modifier, ICharacterCore origin)
         {
 
-            ModifierProcess newModifier = ModifierProcess.CreateModifier(modifier, _core);
+            ModifierProcess newModifier = ModifierProcess.CreateModifier(modifier, _core, origin);
             _modifiers.Add(newModifier);
             newModifier.SubscribeToEnd(() => { _modifiers.Remove(newModifier); } );
             return newModifier;

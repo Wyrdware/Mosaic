@@ -8,18 +8,14 @@ using UnityEngine;
 namespace Mosaic
 {
     [System.Serializable] 
-    public class Modifier
-    {
-        public ModifierProcess Process;
-        public ICharacterCore Originator;
-    }
+
     public abstract class ModifierProcess : ScriptableObject
     {
-        protected ICharacterCore _target;
-        protected ICharacterCore _originator;
+        protected ICharacterCore Core;
+        protected ICharacterCore Origin;
 
-        protected float _startTime;
-        protected YieldInstruction _tick = null;//ticks every frame
+        protected float StartTime;
+        protected YieldInstruction Yield = null;//ticks every frame
 
         private Coroutine _process;
         private bool _isInstance = false;
@@ -27,15 +23,15 @@ namespace Mosaic
         public delegate void EndEventHandler();
         private event EndEventHandler EndEvent;
 
-        public static ModifierProcess CreateModifier(Modifier modifier, ICharacterCore target)
+        public static ModifierProcess CreateModifier(ModifierProcess modifier, ICharacterCore core, ICharacterCore origin)
         {
-            ModifierProcess newModifier = Instantiate(modifier.Process);
+            ModifierProcess newModifier = Instantiate(modifier);
 
-            newModifier._target = target;
-            newModifier._originator = modifier.Originator == null? target : modifier.Originator;
+            newModifier.Core = core;
+            newModifier.Origin = origin;//Modifier Process must check if the originator is null
 
-            newModifier._startTime = Time.time;
-            newModifier._process = target.monoBehaviour.StartCoroutine(newModifier.Process());
+            newModifier.StartTime = Time.time;
+            newModifier._process = core.monoBehaviour.StartCoroutine(newModifier.Process());
             newModifier._isInstance = true;
 
             return  newModifier;
@@ -50,7 +46,7 @@ namespace Mosaic
         public void Clear()
         {
             Debug.Assert(_isInstance);
-            _target.monoBehaviour.StopCoroutine(_process);
+            Core.monoBehaviour.StopCoroutine(_process);
             End();
             EndEvent.Invoke();
             Destroy(this);
@@ -63,15 +59,15 @@ namespace Mosaic
 
             while(EndCondition())
             {
-                yield return _tick;
                 Tick();
+                yield return Yield;
             }
 
             Clear();
         }
 
-        protected abstract bool EndCondition();
-        protected abstract void Begin();
+        protected abstract bool EndCondition();//Confusing wording, while true the process will continue
+        protected abstract void Begin();//yield can be set at begin
         protected abstract void Tick();
         protected abstract void End();
     }
@@ -83,7 +79,7 @@ namespace Mosaic
 
         protected override bool EndCondition()
         {
-            return Time.time < _startTime + _duration;
+            return Time.time < StartTime + _duration;
         }
     }
 }
