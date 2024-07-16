@@ -1,4 +1,5 @@
 ﻿
+using Codice.CM.Common;
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -11,65 +12,91 @@ namespace Mosaic
 
     public abstract class ModifierProcess : ScriptableObject
     {
-        protected ICharacterCore Core;
-        protected ICharacterCore Origin;
+        private ICharacterCore _core;
+        private ICharacterCore _origin;
 
-        protected float StartTime;
-        protected YieldInstruction Yield = null;//ticks every frame
+        private float _startTime;
 
         private Coroutine _process;
         private bool _isInstance = false;
 
         public delegate void EndEventHandler();
-        private event EndEventHandler EndEvent;
+        private event EndEventHandler _endEvent;
 
-        public static ModifierProcess CreateModifier(ModifierProcess modifier, ICharacterCore core, ICharacterCore origin)
+
+        public static ModifierProcess Initialize(ModifierProcess modifier, ICharacterCore core, ICharacterCore Origin)
         {
             ModifierProcess newModifier = Instantiate(modifier);
-
-            newModifier.Core = core;
-            newModifier.Origin = origin;//Modifier Process must check if the originator is null
-
-            newModifier.StartTime = Time.time;
-            newModifier._process = core.monoBehaviour.StartCoroutine(newModifier.Process());
+            newModifier._core = core;
+            newModifier._origin = Origin;
             newModifier._isInstance = true;
+            modifier._startTime = Time.time;
+            return newModifier;
+        }
+        public static ModifierProcess ActivateInstance(ModifierProcess modifier)
+        {
+            Debug.Assert(modifier._isInstance);
 
-            return  newModifier;
+            modifier._process = modifier._core.monoBehaviour.StartCoroutine(Process(modifier));
+
+            return  modifier;
         }
 
-        public void SubscribeToEnd(EndEventHandler endMod)
+
+        public virtual ICharacterCore GetCore()
+        {
+            return _core;
+        }
+        public virtual ICharacterCore GetOrigin()
+        {
+            return _origin;
+        }
+        public virtual float GetStartTime()
+        {
+            return _startTime;
+        }
+        public virtual YieldInstruction Yield()
+        {
+            return null;
+        }
+
+        public virtual void SubscribeToEnd(EndEventHandler endMod)
         {
             Debug.Assert(_isInstance);
-            EndEvent += endMod;
+            _endEvent += endMod;
         }
 
         public void Clear()
         {
             Debug.Assert(_isInstance);
-            Core.monoBehaviour.StopCoroutine(_process);
+            _core.monoBehaviour.StopCoroutine(_process);
             End();
-            EndEvent.Invoke();
+            _endEvent.Invoke();
             Destroy(this);
 
         }
 
-        private IEnumerator Process()
+        private static IEnumerator Process(ModifierProcess modifier)
         {
-            Begin();
+            modifier.Begin();
 
-            while(EndCondition())
+            while(modifier.EndCondition())
             {
-                Tick();
-                yield return Yield;
+                modifier.Tick();
+                yield return modifier.Yield();
             }
 
-            Clear();
+            modifier.Clear();
         }
 
-        protected abstract bool EndCondition();//Confusing wording, while true the process will continue
-        protected abstract void Begin();//yield can be set at begin
-        protected abstract void Tick();
-        protected abstract void End();
+
+
+        public abstract bool EndCondition();//Confusing wording, while true the process will continue
+        public abstract void Begin();//yield can be set at begin
+        public abstract void Tick();
+        public abstract void End();
+    
+    
     }
 
     public abstract class CModifierDuration : ModifierProcess
@@ -77,9 +104,9 @@ namespace Mosaic
         [SerializeField]
         protected float _duration = 5f;
 
-        protected override bool EndCondition()
+        public override bool EndCondition()
         {
-            return Time.time < StartTime + _duration;
+            return Time.time < GetStartTime() + _duration;
         }
     }
 }

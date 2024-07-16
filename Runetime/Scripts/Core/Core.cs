@@ -23,6 +23,8 @@ namespace Mosaic
         [Tooltip("Modifiers apply persistent effects to the actor.")]
         [SerializeField]
         private List<ModifierProcess> _modifiers;
+        [SerializeField]
+        private List<ModifierDecorator> _modifierDecorators;
         [Tooltip("Event modifiers activate whenever the corresponding event is triggered.")]
         [SerializeField]
         private List<ModifierEventHandler.EventMods> _eventModifiers;
@@ -45,7 +47,7 @@ namespace Mosaic
             _stateMachine = new StateMachine(this, _defaultBehavior, _behaviors);
             _stateMachine.Begin();
 
-            Modifiers = new ModifierHandler(this, _modifiers);
+            Modifiers = new ModifierHandler(this, _modifiers, _modifierDecorators);
             ModifierEvents = new ModifierEventHandler(this, _eventModifiers);
 
         }
