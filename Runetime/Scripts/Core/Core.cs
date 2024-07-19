@@ -22,7 +22,7 @@ namespace Mosaic
         private List<Behavior> _behaviors;
         [Tooltip("Modifiers apply persistent effects to the actor.")]
         [SerializeField]
-        private List<ModifierProcess> _modifiers;
+        private List<Modifier> _modifiers;
         [SerializeField]
         private List<ModifierDecorator> _modifierDecorators;
         [Tooltip("Event modifiers activate whenever the corresponding event is triggered.")]

@@ -1,17 +1,24 @@
-﻿
-using Codice.CM.Common;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
-using Unity.VisualScripting;
 using UnityEngine;
+using static Codice.Client.BaseCommands.Import.Commit;
 
 namespace Mosaic
 {
-    [System.Serializable] 
-
-    public abstract class ModifierProcess : ScriptableObject
+    public class ModifierProcess
     {
+
+        //used to track added modifiers
+        private Dictionary<IModifier, IModifier> originalToInstancedMap = new();
+        
+        /// <summary>
+        /// Index of 0 is the Leaf Modifier. All others are decorators.
+        /// </summary>
+        private List<IModifier> _modifiers;
+
+
+
         private ICharacterCore _core;
         private ICharacterCore _origin;
 
@@ -23,46 +30,112 @@ namespace Mosaic
         public delegate void EndEventHandler();
         private event EndEventHandler _endEvent;
 
+        private Type _modifierType;
 
-        public static ModifierProcess Initialize(ModifierProcess modifier, ICharacterCore core, ICharacterCore Origin)
+
+        public ModifierProcess(Modifier modifier, List<ModifierDecorator> decorators,ICharacterCore core, ICharacterCore origin)
         {
-            ModifierProcess newModifier = Instantiate(modifier);
-            newModifier._core = core;
-            newModifier._origin = Origin;
-            newModifier._isInstance = true;
-            modifier._startTime = Time.time;
-            return newModifier;
+           
+            //Set Values
+            _core = core;
+            _origin = origin;
+            _isInstance = true;
+            _startTime = Time.time;
+            _modifierType = modifier.GetType();
+            //Instanciate modifier
+            Modifier instance = ScriptableObject.Instantiate(modifier);
+            instance.SetProcess(this);
+            _modifiers = new() { instance };
+            originalToInstancedMap.Add(modifier, instance);
+            //Instanciate decorators
+            AddDecorator(decorators);
+
+            //Start Process
+            _process = _core.monoBehaviour.StartCoroutine(Process());
+
         }
-        public static ModifierProcess ActivateInstance(ModifierProcess modifier)
+
+        private IModifier CreateDecorator(ModifierDecorator decorator)
         {
-            Debug.Assert(modifier._isInstance);
-
-            modifier._process = modifier._core.monoBehaviour.StartCoroutine(Process(modifier));
-
-            return  modifier;
+            ScriptableObject decoratorAsSO = (ScriptableObject)decorator;//This mess of casting feels awful and is confusing to look at, but it works so I'm leaving it for now
+            IModifier instance = (IModifier)ScriptableObject.Instantiate(decoratorAsSO);
+            instance.SetProcess(this);
+            return instance;
+        }
+        public void AddDecorator(ModifierDecorator decorator)
+        {
+            IModifier instance = CreateDecorator(decorator);
+            _modifiers.Add(instance);
+            originalToInstancedMap.Add(decorator, instance);
+            _modifiers.Sort((x, y) => y.GetPriority().CompareTo(x.GetPriority()));
+        }
+        public void AddDecorator(List<ModifierDecorator> decorators)
+        {
+            foreach (ModifierDecorator decorator in decorators)
+            {
+                IModifier instance = CreateDecorator(decorator);
+                _modifiers.Add(instance);
+                originalToInstancedMap.Add(decorator, instance);
+            }
+            _modifiers.Sort((x, y) => y.GetPriority().CompareTo(x.GetPriority()));
         }
 
+        //TODO: This likely won't work, we will need to add an ID system to save 
+        public void RemoveDecorator(ModifierDecorator decorator)
+        {
+            IModifier instanceToRemove = originalToInstancedMap[decorator];
+            originalToInstancedMap.Remove(decorator);
 
-        public virtual ICharacterCore GetCore()
+            _modifiers.Remove(instanceToRemove);
+            _modifiers.Sort((x, y) => y.GetPriority().CompareTo(x.GetPriority()));
+        }
+        public IModifier GetChildOfDecorator(IModifier decorator)
+        {
+            int indexOfComponent = _modifiers.IndexOf(decorator) + 1;
+            //This will through an index out of bounds error if called by the leaf modifier; 
+            return _modifiers[indexOfComponent];
+        }
+        public ICharacterCore GetCore()
         {
             return _core;
         }
-        public virtual ICharacterCore GetOrigin()
+        public ICharacterCore GetOrigin()
         {
             return _origin;
         }
-        public virtual float GetStartTime()
+        public float GetStartTime()
         {
             return _startTime;
         }
-        public virtual YieldInstruction Yield()
+
+
+
+        //TODO: Connect functions to modifiers.
+        private void Begin()
         {
-            return null;
+            _modifiers[0].Begin();
+        }
+        private bool EndCondition()
+        {
+            return _modifiers[0].EndCondition();
+        }
+        private void Tick()
+        {
+            _modifiers[0].Tick();
+        }
+        private YieldInstruction Yield()
+        {
+            return _modifiers[0].Yield();
+        }
+        private void End()
+        {
+            _modifiers[0].End();
         }
 
-        public virtual void SubscribeToEnd(EndEventHandler endMod)
+
+
+        public void SubscribeToEnd(EndEventHandler endMod)
         {
-            Debug.Assert(_isInstance);
             _endEvent += endMod;
         }
 
@@ -71,42 +144,29 @@ namespace Mosaic
             Debug.Assert(_isInstance);
             _core.monoBehaviour.StopCoroutine(_process);
             End();
-            _endEvent.Invoke();
-            Destroy(this);
 
-        }
-
-        private static IEnumerator Process(ModifierProcess modifier)
-        {
-            modifier.Begin();
-
-            while(modifier.EndCondition())
+            foreach(var instance in _modifiers)
             {
-                modifier.Tick();
-                yield return modifier.Yield();
+                ScriptableObject.Destroy((ScriptableObject)instance);    
             }
 
-            modifier.Clear();
+            _endEvent.Invoke();
         }
 
-
-
-        public abstract bool EndCondition();//Confusing wording, while true the process will continue
-        public abstract void Begin();//yield can be set at begin
-        public abstract void Tick();
-        public abstract void End();
-    
-    
-    }
-
-    public abstract class CModifierDuration : ModifierProcess
-    {
-        [SerializeField]
-        protected float _duration = 5f;
-
-        public override bool EndCondition()
+        private IEnumerator Process()
         {
-            return Time.time < GetStartTime() + _duration;
+            Debug.Log("APPLYING " );
+            Begin();
+
+            while (EndCondition())
+            {
+                Tick();
+                yield return Yield();
+            }
+            yield return null;
+            Clear();
         }
+
     }
 }
+

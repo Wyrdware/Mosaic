@@ -7,18 +7,19 @@ namespace Mosaic
 {
     public class ModifierHandler
     {
-        private readonly List<ModifierProcess> _modifiers= new();
+        //Create a wrapper class for all modifiers, this will handle the process along with adding and removing decorators.
+        private readonly Dictionary<Type, List<ModifierProcess>> _modifiers= new();// using a diction
         private readonly ICharacterCore _core;
         private readonly Dictionary<Type, List<ModifierDecorator>> _modifierDecorators = new();
-        public ModifierHandler(ICharacterCore core, List<ModifierProcess> modifiers, List<ModifierDecorator> decorators)
+        public ModifierHandler(ICharacterCore core, List<Modifier> modifiers, List<ModifierDecorator> decorators)
         {
             _core = core;
 
             foreach(ModifierDecorator decorator in decorators)
             {
-                AddModifierDecorator(decorator, _core);
+                AddModifierDecorator(decorator);
             }
-            foreach(ModifierProcess modifier in modifiers)
+            foreach(Modifier modifier in modifiers)
             {
                 ApplyModifier(modifier, _core);
             }
@@ -35,59 +36,54 @@ namespace Mosaic
         /// <param name="origin"></param>
         /// The core that is responsible for initiating this decorator.
         /// <returns></returns>
-        public ModifierDecorator AddModifierDecorator(ModifierDecorator decorator, ICharacterCore origin)
+        public void AddModifierDecorator(ModifierDecorator decorator)
         {
-            ModifierProcess newModifierDecorator = decorator;
 
             _modifierDecorators.TryAdd(decorator.GetComponentType(), new List<ModifierDecorator>());
-            _modifierDecorators[decorator.GetComponentType()].Add(newModifierDecorator as ModifierDecorator);
-            
-            
+            _modifierDecorators[decorator.GetComponentType()].Add(decorator as ModifierDecorator);
 
 
             //TODO: Apply modifier decorator to all modfifiers of type T?
-
-
-
-
-            return newModifierDecorator as ModifierDecorator;
+            if (_modifiers.ContainsKey(decorator.GetComponentType()))
+            {
+                foreach (ModifierProcess modifierProcess in _modifiers[decorator.GetComponentType()])
+                {
+                    modifierProcess.AddDecorator(decorator);
+                }
+            }
         }
 
         public void RemoveModifierDecorator(ModifierDecorator decorator)
         {
             _modifierDecorators[decorator.GetComponentType()].Remove(decorator);
 
+
             //Remove decorator from all modifiers it applies to
+            foreach (ModifierProcess modifierProcess in _modifiers[decorator.GetComponentType()])
+            {
+                modifierProcess.RemoveDecorator(decorator);
+            }
         }
            
-        public ModifierProcess ApplyModifier(ModifierProcess modifier, ICharacterCore origin)
+        public void ApplyModifier(Modifier modifier, ICharacterCore origin)
         {
-
-            ModifierProcess newModifier = ModifierProcess.Initialize(modifier,_core, origin);//Create an instane of the modifier to be manipulated
-            //Apply all decorators to the modifier
-            if (_modifierDecorators.TryGetValue(modifier.GetType(), out List<ModifierDecorator> decorators))
-            {
-                foreach (ModifierDecorator decorator in decorators)// Ordering the list could be used for a sort of priority
-                {
-                    Debug.Log("Adding a decorator");
-                    ModifierDecorator instance = ModifierProcess.Initialize(decorator, _core, origin) as ModifierDecorator;//Make an instance to be manipulated
-
-                    instance.Decorate(newModifier);// Adds a new instance to each of the modifiers.
-                    newModifier = instance;
-                }
-            }
-            newModifier = ModifierProcess.ActivateInstance(newModifier);
             
-            
+            Type modifierType = modifier.GetType();
 
+            //Get a list of all modifier decorators
+            List<ModifierDecorator> decorators = new();
+            _modifierDecorators.TryGetValue(modifierType, out decorators);
 
+            //Create the new process
+            ModifierProcess newProcess = new ModifierProcess(modifier, decorators, _core, origin);//Create an instane of the modifier to be manipulated
 
-            _modifiers.Add(newModifier);
+            _modifiers.TryAdd(modifierType, new List<ModifierProcess>());
+            _modifiers[modifierType].Add(newProcess);
 
-            newModifier.SubscribeToEnd(() => { _modifiers.Remove(newModifier); } );//When a modifier is removed, there is no need to worry about the decorators since they are part of the object
-            return newModifier;
+            //Putting this in the handler instead of the modifier process itself so the entire lifecycle can be easily accessed
+            newProcess.SubscribeToEnd(() => { _modifiers[modifierType].Remove(newProcess); } );//When a modifier is removed, there is no need to worry about the decorators since they are part of the object
+
         }
-
         //TODO add GetMod(params) to get a specific modifier that can then be removed/monitored
 
     }
