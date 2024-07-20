@@ -10,7 +10,7 @@ namespace Mosaic
         public abstract bool EndCondition();
         public abstract Type GetComponentType();
         public abstract int GetPriority();
-        public abstract void SetProcess(ModifierProcess process);
+        public abstract void SetProcess(Guid id, ModifierProcess process);
         public abstract void Tick();
         public abstract YieldInstruction Yield();
     }
@@ -18,62 +18,64 @@ namespace Mosaic
     {
         [SerializeField]
         private int _priority;
+        private Guid _id;
 
         private ModifierProcess _process;
 
-        public override int GetPriority()
+        public sealed override int GetPriority()
         {
             return _priority;
         }
-        public override void SetProcess(ModifierProcess process) // SMOOCH!
+        public sealed override void SetProcess(Guid id, ModifierProcess process)
         {
+            _id = id;
             _process = process;
         }
-        public override Type GetComponentType()
+        public sealed override Type GetComponentType()
         {
             return typeof(T);
         }
 
 
-        protected T GetComponent()
+        private IModifier GetComponent()
         {
-            return (T)_process.GetChildOfDecorator(this);
+            return _process.GetChildOfDecorator(_id);
         }
-        public ICharacterCore GetCore()
+        protected T GetModifier()
+        {
+            return (T) _process.GetModifier();
+        }
+        protected ICharacterCore GetCore()
         {
             return _process.GetCore();
         }
-        public ICharacterCore GetOrigin()
+        protected ICharacterCore GetOrigin()
         {
             return _process.GetOrigin();
         }
-        public float GetStartTime()
+        protected float GetStartTime()
         {
             return _process.GetStartTime();
         }
 
 
-
+        //The following methods should be overriden
         public override YieldInstruction Yield()
         {
             return GetComponent().Yield();
         }
-
         public override void Begin()
         {
             GetComponent().Begin();
         }
-
         public override void End()
         {
             GetComponent().End();
         }
-
         public override bool EndCondition()
         {
             return GetComponent().EndCondition();
         }
-
         public override void Tick()
         {
             GetComponent().Tick();

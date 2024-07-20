@@ -7,10 +7,16 @@ namespace Mosaic
 {
     public class ModifierHandler
     {
-        //Create a wrapper class for all modifiers, this will handle the process along with adding and removing decorators.
-        private readonly Dictionary<Type, List<ModifierProcess>> _modifiers= new();// using a diction
         private readonly ICharacterCore _core;
-        private readonly Dictionary<Type, List<ModifierDecorator>> _modifierDecorators = new();
+        //Create a wrapper class for all modifiers, this will handle the process along with adding and removing decorators.
+        private readonly Dictionary<Type, List<Guid>> _processByType= new();// using a diction
+        private readonly Dictionary<Type, List<Guid>> _decoratorsByType = new();
+
+        //We track each instance of a modifier so that we can easily remove the specific one that was added.
+        private readonly Dictionary<Guid, ModifierProcess> _processByID = new();
+        private readonly Dictionary<Guid, ModifierDecorator> _decoratorByID= new();
+
+
         public ModifierHandler(ICharacterCore core, List<Modifier> modifiers, List<ModifierDecorator> decorators)
         {
             _core = core;
@@ -36,55 +42,76 @@ namespace Mosaic
         /// <param name="origin"></param>
         /// The core that is responsible for initiating this decorator.
         /// <returns></returns>
-        public void AddModifierDecorator(ModifierDecorator decorator)
+        public Guid AddModifierDecorator(ModifierDecorator decorator)
         {
+            //create unique id for the modifier
+            Guid id = Guid.NewGuid();
+            // store the unique id and the modifier in a dictionary
+            _decoratorByID.Add(id, decorator);
 
-            _modifierDecorators.TryAdd(decorator.GetComponentType(), new List<ModifierDecorator>());
-            _modifierDecorators[decorator.GetComponentType()].Add(decorator as ModifierDecorator);
+            _decoratorsByType.TryAdd(decorator.GetComponentType(), new List<Guid>());
+            _decoratorsByType[decorator.GetComponentType()].Add(id);
 
 
-            //TODO: Apply modifier decorator to all modfifiers of type T?
-            if (_modifiers.ContainsKey(decorator.GetComponentType()))
+            if (_processByType.ContainsKey(decorator.GetComponentType()))
             {
-                foreach (ModifierProcess modifierProcess in _modifiers[decorator.GetComponentType()])
+                foreach (Guid processID in _processByType[decorator.GetComponentType()])
                 {
-                    modifierProcess.AddDecorator(decorator);
+                    _processByID[processID].AddDecorator(id, decorator);
                 }
             }
+
+
+            return id;
         }
 
-        public void RemoveModifierDecorator(ModifierDecorator decorator)
+        public void RemoveModifierDecorator(Guid id)
         {
-            _modifierDecorators[decorator.GetComponentType()].Remove(decorator);
-
+            ModifierDecorator decorator = _decoratorByID[id];
 
             //Remove decorator from all modifiers it applies to
-            foreach (ModifierProcess modifierProcess in _modifiers[decorator.GetComponentType()])
+            foreach (Guid processID in _processByType[_decoratorByID[id].GetComponentType()])
             {
-                modifierProcess.RemoveDecorator(decorator);
+                _processByID[processID].RemoveDecorator(id);
+                
             }
+            _decoratorByID.Remove(id);
+            _decoratorsByType[decorator.GetComponentType()].Remove(id);
         }
            
-        public void ApplyModifier(Modifier modifier, ICharacterCore origin)
+        public Guid ApplyModifier(Modifier modifier, ICharacterCore origin)
         {
-            
+            Guid id = Guid.NewGuid();
             Type modifierType = modifier.GetType();
 
             //Get a list of all modifier decorators
-            List<ModifierDecorator> decorators = new();
-            _modifierDecorators.TryGetValue(modifierType, out decorators);
+            
+            List<(Guid, ModifierDecorator)> idDecorator = new(); 
+            if(_decoratorsByType.TryGetValue(modifierType, out List<Guid> decorators))
+            {
+                foreach (Guid decoratorID in decorators)
+                {
+                    idDecorator.Add((decoratorID, _decoratorByID[decoratorID]));
+                }
+            }
 
             //Create the new process
-            ModifierProcess newProcess = new ModifierProcess(modifier, decorators, _core, origin);//Create an instane of the modifier to be manipulated
+            ModifierProcess newProcess = new ModifierProcess(id, modifier, idDecorator, _core, origin);//Create an instane of the modifier to be manipulated
 
-            _modifiers.TryAdd(modifierType, new List<ModifierProcess>());
-            _modifiers[modifierType].Add(newProcess);
+            _processByType.TryAdd(modifierType, new List<Guid>());
+            _processByType[modifierType].Add(id);
+            _processByID.Add(id, newProcess);
 
-            //Putting this in the handler instead of the modifier process itself so the entire lifecycle can be easily accessed
-            newProcess.SubscribeToEnd(() => { _modifiers[modifierType].Remove(newProcess); } );//When a modifier is removed, there is no need to worry about the decorators since they are part of the object
+            //Putting this in the handler instead of the modifier process itself so the entire lifecycle is handled in a single location
+            newProcess.SubscribeToEnd(() => 
+            { 
+                _processByType[modifierType].Remove(id);
+                _processByID.Remove(id);
+            
+            } );//When a modifier is removed, there is no need to worry about the decorators since they are part of the object
+
+            return id;
 
         }
-        //TODO add GetMod(params) to get a specific modifier that can then be removed/monitored
-
     }
 }

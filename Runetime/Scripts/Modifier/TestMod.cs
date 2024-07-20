@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Mosaic
 {
     [CreateAssetMenu(fileName = "TestMod2", menuName = "CharacterModule / Modifier / TestMod2", order = 1)]
-    public class TestMod : CModifierDuration
+    public class TestMod : ModifierDuration
     {
         public override YieldInstruction Yield()
         {

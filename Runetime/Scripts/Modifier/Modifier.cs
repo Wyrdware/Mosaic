@@ -1,9 +1,5 @@
 ﻿
-using Codice.CM.Common;
-using System.Collections;
-using System.Collections.Generic;
-using System.Dynamic;
-using Unity.VisualScripting;
+using System;
 using UnityEngine;
 
 namespace Mosaic
@@ -11,7 +7,7 @@ namespace Mosaic
     public interface IModifier
     {
         public int GetPriority();
-        public void SetProcess(ModifierProcess process);
+        public void SetProcess(Guid id, ModifierProcess process);
         public YieldInstruction Yield();
         public bool EndCondition();
         public void Begin();
@@ -26,13 +22,16 @@ namespace Mosaic
     [System.Serializable]
     public abstract class Modifier : ScriptableObject , IModifier
     {
+
         private ModifierProcess _process;
+        private Guid _id;
         public int GetPriority()
         {
             return -1;
         }
-        public void SetProcess(ModifierProcess process)
+        public void SetProcess(Guid id, ModifierProcess process)
         {
+            _id = id;
             _process = process;
         }
         protected ICharacterCore GetCore()
@@ -54,12 +53,16 @@ namespace Mosaic
             return null;
         }
         public abstract bool EndCondition();//Confusing wording, while true the process will continue
-        public abstract void Begin();//yield can be set at begin
+        public abstract void Begin();
         public abstract void Tick();
         public abstract void End();
+
+
     }
 
-    public abstract class CModifierDuration : Modifier
+
+    // Test class for a modifier that exists only for a specified duration
+    public abstract class ModifierDuration : Modifier
     {
         [SerializeField]
         protected float _duration = 5f;

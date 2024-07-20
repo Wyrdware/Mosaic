@@ -10,43 +10,44 @@ namespace Mosaic
     {
 
         //used to track added modifiers
-        private Dictionary<IModifier, IModifier> originalToInstancedMap = new();
+        private Dictionary<Guid, IModifier> _instance = new();
         
         /// <summary>
         /// Index of 0 is the Leaf Modifier. All others are decorators.
         /// </summary>
-        private List<IModifier> _modifiers;
-
-
-
+        private List<Guid> _modifiers;
+        
+        private Guid _id;
         private ICharacterCore _core;
         private ICharacterCore _origin;
 
-        private float _startTime;
+        private readonly float _startTime;
 
-        private Coroutine _process;
-        private bool _isInstance = false;
+        private readonly Coroutine _process;
+        private readonly bool _isInstance = false;
 
         public delegate void EndEventHandler();
-        private event EndEventHandler _endEvent;
-
-        private Type _modifierType;
+        private event EndEventHandler EndEvent;
 
 
-        public ModifierProcess(Modifier modifier, List<ModifierDecorator> decorators,ICharacterCore core, ICharacterCore origin)
+
+
+        public ModifierProcess(Guid id, Modifier modifier, List<(Guid, ModifierDecorator)> decorators,ICharacterCore core, ICharacterCore origin)
         {
            
             //Set Values
+            _id = id;
             _core = core;
             _origin = origin;
             _isInstance = true;
             _startTime = Time.time;
-            _modifierType = modifier.GetType();
+
             //Instanciate modifier
             Modifier instance = ScriptableObject.Instantiate(modifier);
-            instance.SetProcess(this);
-            _modifiers = new() { instance };
-            originalToInstancedMap.Add(modifier, instance);
+            instance.SetProcess(id, this);
+            _instance.Add(id, instance);
+            _modifiers = new() { id };
+            
             //Instanciate decorators
             AddDecorator(decorators);
 
@@ -55,45 +56,48 @@ namespace Mosaic
 
         }
 
-        private IModifier CreateDecorator(ModifierDecorator decorator)
+        private IModifier CreateDecorator(Guid id, ModifierDecorator decorator)
         {
             ScriptableObject decoratorAsSO = (ScriptableObject)decorator;//This mess of casting feels awful and is confusing to look at, but it works so I'm leaving it for now
             IModifier instance = (IModifier)ScriptableObject.Instantiate(decoratorAsSO);
-            instance.SetProcess(this);
+            instance.SetProcess(id, this);
             return instance;
         }
-        public void AddDecorator(ModifierDecorator decorator)
+        public void AddDecorator(Guid id, ModifierDecorator decorator)
         {
-            IModifier instance = CreateDecorator(decorator);
-            _modifiers.Add(instance);
-            originalToInstancedMap.Add(decorator, instance);
-            _modifiers.Sort((x, y) => y.GetPriority().CompareTo(x.GetPriority()));
+            IModifier instance = CreateDecorator(id, decorator);
+            _instance.Add(id, instance);
+            _modifiers.Add(id);
+            _modifiers.Sort((x, y) => _instance[y].GetPriority().CompareTo(_instance[x].GetPriority()));
         }
-        public void AddDecorator(List<ModifierDecorator> decorators)
+        public void AddDecorator(List<(Guid, ModifierDecorator)> decorators)
         {
-            foreach (ModifierDecorator decorator in decorators)
+            foreach ((Guid, ModifierDecorator) decorator in decorators)
             {
-                IModifier instance = CreateDecorator(decorator);
-                _modifiers.Add(instance);
-                originalToInstancedMap.Add(decorator, instance);
+                IModifier instance = CreateDecorator(decorator.Item1, decorator.Item2);
+                _instance.Add(decorator.Item1, instance);
+                _modifiers.Add(decorator.Item1);
             }
-            _modifiers.Sort((x, y) => y.GetPriority().CompareTo(x.GetPriority()));
+            _modifiers.Sort((x, y) => _instance[y].GetPriority().CompareTo(_instance[x].GetPriority()));
         }
 
         //TODO: This likely won't work, we will need to add an ID system to save 
-        public void RemoveDecorator(ModifierDecorator decorator)
+        public void RemoveDecorator(Guid id)
         {
-            IModifier instanceToRemove = originalToInstancedMap[decorator];
-            originalToInstancedMap.Remove(decorator);
-
-            _modifiers.Remove(instanceToRemove);
-            _modifiers.Sort((x, y) => y.GetPriority().CompareTo(x.GetPriority()));
+            _instance.Remove(id);
+            _modifiers.Remove(id);
+            _modifiers.Sort((x, y) => _instance[y].GetPriority().CompareTo(_instance[x].GetPriority()));
         }
-        public IModifier GetChildOfDecorator(IModifier decorator)
+        public IModifier GetChildOfDecorator(Guid id)
         {
-            int indexOfComponent = _modifiers.IndexOf(decorator) + 1;
+            int indexOfComponent = _modifiers.IndexOf(id) + 1;
+            
             //This will through an index out of bounds error if called by the leaf modifier; 
-            return _modifiers[indexOfComponent];
+            return _instance[_modifiers[indexOfComponent]];
+        }
+        public IModifier GetModifier()
+        {
+            return _instance[_id];
         }
         public ICharacterCore GetCore()
         {
@@ -113,30 +117,30 @@ namespace Mosaic
         //TODO: Connect functions to modifiers.
         private void Begin()
         {
-            _modifiers[0].Begin();
+            _instance[_modifiers[0]].Begin();
         }
         private bool EndCondition()
         {
-            return _modifiers[0].EndCondition();
+            return _instance[_modifiers[0]].EndCondition();
         }
         private void Tick()
         {
-            _modifiers[0].Tick();
+            _instance[_modifiers[0]].Tick();
         }
         private YieldInstruction Yield()
         {
-            return _modifiers[0].Yield();
+            return _instance[_modifiers[0]].Yield();
         }
         private void End()
         {
-            _modifiers[0].End();
+            _instance[_modifiers[0]].End();
         }
 
 
 
         public void SubscribeToEnd(EndEventHandler endMod)
         {
-            _endEvent += endMod;
+            EndEvent += endMod;
         }
 
         public void Clear()
@@ -145,12 +149,12 @@ namespace Mosaic
             _core.monoBehaviour.StopCoroutine(_process);
             End();
 
-            foreach(var instance in _modifiers)
+            foreach(KeyValuePair<Guid, IModifier> instance in _instance)
             {
-                ScriptableObject.Destroy((ScriptableObject)instance);    
+                ScriptableObject.Destroy((ScriptableObject)instance.Value);    
             }
 
-            _endEvent.Invoke();
+            EndEvent.Invoke();
         }
 
         private IEnumerator Process()
