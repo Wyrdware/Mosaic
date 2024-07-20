@@ -14,12 +14,18 @@ namespace Mosaic
     [RequireComponent(typeof(CharacterInput))]
     public class Core : MonoBehaviour, ICharacterCore
     {
+        [Tooltip("The actor will default to this behavior whenever there is not a valid state to transition to.")]
         [SerializeField]
         private Behavior _defaultBehavior;
+        [Tooltip("The starting behaviors of the actor.")]
         [SerializeField]
         private List<Behavior> _behaviors;
+        [Tooltip("Modifiers apply persistent effects to the actor.")]
         [SerializeField]
         private List<Modifier> _modifiers;
+        [SerializeField]
+        private List<ModifierDecorator> _modifierDecorators;
+        [Tooltip("Event modifiers activate whenever the corresponding event is triggered.")]
         [SerializeField]
         private List<ModifierEventHandler.EventMods> _eventModifiers;
 
@@ -36,14 +42,14 @@ namespace Mosaic
 
         private void Awake()
         {
-
             Input = GetComponent<CharacterInput>();
             DataTags = new DataTagRepository();
             _stateMachine = new StateMachine(this, _defaultBehavior, _behaviors);
-            Modifiers = new ModifierHandler(this, _modifiers);
+            _stateMachine.Begin();
+
+            Modifiers = new ModifierHandler(this, _modifiers, _modifierDecorators);
             ModifierEvents = new ModifierEventHandler(this, _eventModifiers);
 
-            _stateMachine.Begin();
         }
     }
 

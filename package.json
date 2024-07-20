@@ -1,6 +1,6 @@
 {
   "name": "com.jared-goronkin.mosaic",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "displayName": "Mosaic: Unified Action Framework",
   "description": "A tool that modularizes the creation of characters and their behavior within games, reducing complexity creep and coupling, and facilitating scalability in development.",
   "unity": "2021.3",
