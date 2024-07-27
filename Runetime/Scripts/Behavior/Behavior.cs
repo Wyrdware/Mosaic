@@ -18,7 +18,7 @@ namespace Mosaic
         public GameObject ModuleState => _moduleState;
         public List<BehaviorType> State => _state;
 
-        private float GetDecisionValue(ICharacterCore character, List<BehaviorType> currentState, BehaviorInputType currentInput)//Get how likeley this decision is to occur
+        private float GetDecisionValue(ICore character, List<BehaviorType> currentState, BehaviorInputType currentInput)//Get how likeley this decision is to occur
         {
             float decisionValue = 0;
             foreach (DecisionData data in _decisionData)
@@ -27,7 +27,7 @@ namespace Mosaic
             }
             return decisionValue;
         }
-        public static Behavior DecideNewState(List<Behavior> states, ICharacterCore character, List<BehaviorType> currentState, BehaviorInputType currentInput)
+        public static Behavior DecideNewState(List<Behavior> states, ICore character, List<BehaviorType> currentState, BehaviorInputType currentInput)
         {
             Behavior finalState = null;
             float finalValue = 0;
@@ -73,7 +73,7 @@ namespace Mosaic
             private List<BehaviorInputType> _validInput;//if the input is valid, the transistion is possible
             [SerializeField]
             private List<BaseDecisionAlgorithm> _decisionAlgorithms;//if the decision value is greater than 0 the transition is possible. All Decision values are multiplied together to gather the final value. The highest value is activated.
-            public float GetDecisionValue(ICharacterCore character, List<BehaviorType> currentStates, BehaviorInputType currentInput)
+            public float GetDecisionValue(ICore character, List<BehaviorType> currentStates, BehaviorInputType currentInput)
             {
                 float decisionValue = 1;
 

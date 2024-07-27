@@ -12,9 +12,9 @@ namespace Mosaic
     /// </summary>
     public abstract class BehaviorInstance : MonoBehaviour 
     {
-        private ICharacterCore _character;
+        private ICore _character;
         protected IDataTagRepository DataTags => _character.DataTags;
-        public ICharacterCore Character => _character;
+        public ICore Character => _character;
        // protected 
         [SerializeField]
         private Transform _targetRootBone;

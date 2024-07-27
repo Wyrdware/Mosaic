@@ -34,11 +34,11 @@ namespace Mosaic
             _id = id;
             _process = process;
         }
-        protected ICharacterCore GetCore()
+        protected ICore GetCore()
         {
             return _process.GetCore();
         }
-        protected ICharacterCore GetOrigin()
+        protected ICore GetOrigin()
         {
             return _process.GetOrigin();
         }

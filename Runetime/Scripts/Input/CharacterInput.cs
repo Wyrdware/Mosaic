@@ -8,7 +8,7 @@ namespace Mosaic
     /// <summary>
     /// One of the two default components required for a character to function.
     /// </summary>
-    [RequireComponent(typeof(ICharacterCore))]
+    [RequireComponent(typeof(ICore))]
     public abstract class CharacterInput : MonoBehaviour
     {
         protected BehaviorInstance stateInstance;

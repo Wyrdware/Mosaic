@@ -45,11 +45,11 @@ namespace Mosaic
         {
             return (T) _process.GetModifier();
         }
-        protected ICharacterCore GetCore()
+        protected ICore GetCore()
         {
             return _process.GetCore();
         }
-        protected ICharacterCore GetOrigin()
+        protected ICore GetOrigin()
         {
             return _process.GetOrigin();
         }

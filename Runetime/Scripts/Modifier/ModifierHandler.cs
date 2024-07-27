@@ -7,7 +7,7 @@ namespace Mosaic
 {
     public class ModifierHandler
     {
-        private readonly ICharacterCore _core;
+        private readonly ICore _core;
         //Create a wrapper class for all modifiers, this will handle the process along with adding and removing decorators.
         private readonly Dictionary<Type, List<Guid>> _processByType= new();// using a diction
         private readonly Dictionary<Type, List<Guid>> _decoratorsByType = new();
@@ -17,7 +17,7 @@ namespace Mosaic
         private readonly Dictionary<Guid, ModifierDecorator> _decoratorByID= new();
 
 
-        public ModifierHandler(ICharacterCore core, List<Modifier> modifiers, List<ModifierDecorator> decorators)
+        public ModifierHandler(ICore core, List<Modifier> modifiers, List<ModifierDecorator> decorators)
         {
             _core = core;
 
@@ -83,7 +83,7 @@ namespace Mosaic
 
         }
 
-        public Guid ApplyModifier(Modifier modifier, ICharacterCore origin)
+        public Guid ApplyModifier(Modifier modifier, ICore origin)
         {
             Guid id = Guid.NewGuid();
             Type modifierType = modifier.GetType();

@@ -7,7 +7,7 @@ using UnityEngine;
 public class TestCharacterCore : MonoBehaviour
 {
     [SerializeField]
-    private ICharacterCore _characterCore;
+    private ICore _characterCore;
     void Start()
     {
     }
