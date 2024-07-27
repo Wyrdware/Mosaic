@@ -70,15 +70,19 @@ namespace Mosaic
             ModifierDecorator decorator = _decoratorByID[id];
 
             //Remove decorator from all modifiers it applies to
-            foreach (Guid processID in _processByType[_decoratorByID[id].GetComponentType()])
+            if (_processByType.TryGetValue(decorator.GetComponentType(), out List<Guid> processIDs))
             {
-                _processByID[processID].RemoveDecorator(id);
-                
+                foreach (Guid processID in processIDs)
+                {
+                    _processByID[processID].RemoveDecorator(id);
+
+                }
             }
             _decoratorByID.Remove(id);
             _decoratorsByType[decorator.GetComponentType()].Remove(id);
+
         }
-           
+
         public Guid ApplyModifier(Modifier modifier, ICharacterCore origin)
         {
             Guid id = Guid.NewGuid();
