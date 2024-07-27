@@ -12,9 +12,9 @@ namespace Mosaic
     /// </summary>
     public abstract class BehaviorInstance : MonoBehaviour 
     {
-        private ICore _character;
-        protected IDataTagRepository DataTags => _character.DataTags;
-        public ICore Character => _character;
+        private ICore _core;
+        protected IDataTagRepository DataTags => _core.DataTags;
+        public ICore Core => _core;
        // protected 
         [SerializeField]
         private Transform _targetRootBone;
@@ -30,7 +30,7 @@ namespace Mosaic
 
 
             BehaviorInstance stateInstance = stateInstanceGO.GetComponent<BehaviorInstance>() ;
-            stateInstance._character = character;
+            stateInstance._core = character;
 
 
             character.Input.OverrideControl(stateInstance);
@@ -51,7 +51,7 @@ namespace Mosaic
         {
             OnExit();// Exit is not virtual because the exectution of OnExit must occur after all other processes have resolved.
 
-            TransformDataTag transformDataTag = _character.DataTags.GetTag<TransformDataTag>();
+            TransformDataTag transformDataTag = _core.DataTags.GetTag<TransformDataTag>();
             transformDataTag.Position = transform.position;
             transformDataTag.Rotation = transform.rotation;
 
