@@ -11,13 +11,13 @@ namespace Mosaic
         public struct EventMods
         {
             public ModifierEventType Type;
-            public List<(Modifier,ICharacterCore)> Mods;
+            public List<(Modifier,ICore)> Mods;
         }
 
-        private ICharacterCore _characterCore;
-        private Dictionary<ModifierEventType, List<(Modifier,ICharacterCore)>> _eventModifiers = new();
+        private ICore _characterCore;
+        private Dictionary<ModifierEventType, List<(Modifier,ICore)>> _eventModifiers = new();
 
-        public ModifierEventHandler(ICharacterCore characterCore, List<EventMods> mods)
+        public ModifierEventHandler(ICore characterCore, List<EventMods> mods)
         {
             this._characterCore = characterCore;
             foreach (EventMods eventMods in mods)
@@ -31,16 +31,16 @@ namespace Mosaic
 
         public void ActivateEvent(ModifierEventType eventType)
         {
-            foreach ((Modifier, ICharacterCore) modifier in _eventModifiers[eventType])
+            foreach ((Modifier, ICore) modifier in _eventModifiers[eventType])
             {
                 _characterCore.Modifiers.ApplyModifier(modifier.Item1, modifier.Item2);
             }
         }
-        public void AddEventMod(ModifierEventType eventType, Modifier modifier, ICharacterCore origin)
+        public void AddEventMod(ModifierEventType eventType, Modifier modifier, ICore origin)
         {
             _eventModifiers[eventType].Add((modifier,origin));
         }
-        public void RemoveEventMod(ModifierEventType eventType, Modifier modifier, ICharacterCore origin)
+        public void RemoveEventMod(ModifierEventType eventType, Modifier modifier, ICore origin)
         {
             _eventModifiers[eventType].Remove((modifier,origin));
         }

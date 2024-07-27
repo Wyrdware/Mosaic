@@ -5,6 +5,6 @@ namespace Mosaic
 {
     public abstract class BaseDecisionAlgorithm : ScriptableObject
     {
-        public abstract float CheckDecesion(ICharacterCore character);
+        public abstract float CheckDecesion(ICore character);
     }
 }

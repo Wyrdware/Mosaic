@@ -12,7 +12,7 @@ namespace Mosaic
     /// One of the base components required for the construction of a Mosaic actor.
     /// </summary>
     [RequireComponent(typeof(CharacterInput))]
-    public class Core : MonoBehaviour, ICharacterCore
+    public class Core : MonoBehaviour, ICore
     {
         [Tooltip("The actor will default to this behavior whenever there is not a valid state to transition to.")]
         [SerializeField]
@@ -53,7 +53,7 @@ namespace Mosaic
         }
     }
 
-    public interface ICharacterCore
+    public interface ICore
     {
         public MonoBehaviour monoBehaviour { get; }
         public GameObject gameObject { get; }

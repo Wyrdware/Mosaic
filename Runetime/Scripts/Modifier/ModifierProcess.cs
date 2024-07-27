@@ -18,8 +18,8 @@ namespace Mosaic
         private List<Guid> _modifiers;
         
         private Guid _id;
-        private ICharacterCore _core;
-        private ICharacterCore _origin;
+        private ICore _core;
+        private ICore _origin;
 
         private readonly float _startTime;
 
@@ -32,7 +32,7 @@ namespace Mosaic
 
 
 
-        public ModifierProcess(Guid id, Modifier modifier, List<(Guid, ModifierDecorator)> decorators,ICharacterCore core, ICharacterCore origin)
+        public ModifierProcess(Guid id, Modifier modifier, List<(Guid, ModifierDecorator)> decorators,ICore core, ICore origin)
         {
            
             //Set Values
@@ -99,11 +99,11 @@ namespace Mosaic
         {
             return _instance[_id];
         }
-        public ICharacterCore GetCore()
+        public ICore GetCore()
         {
             return _core;
         }
-        public ICharacterCore GetOrigin()
+        public ICore GetOrigin()
         {
             return _origin;
         }
