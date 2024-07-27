@@ -1,14 +1,27 @@
 # Mosaic
 
-One Paragraph of project description goes here
+Mosaic facilitates the iteration, expansion, and re-use of gameplay mechanics allowing designers and developers to bring their vision to life. Use Mosaic to create gameplay actors, such as player characters, NPCs, and other stateful entities out of fully modular components. 
+
+So much of what game developers create gets thrown away due to the iterative nature of development. Mosaic’s modular approach allows designers to seamlessly remove, and add new gameplay elements to their actors without requiring unique code to tie the features together.
+
+## Features
+
+- Seamlessly add and remove Mosaic gameplay elements from an existing actor.
+
+- All Mosaic gameplay elements are cross-compatible, quickly test out gameplay elements in brand-new contexts, or create entirely new actors out of the elements from various actors you have already created!
+
+- Utilize Mosaic to craft rewards for your players that matter. By utilizing Mosaic elements as rewards, developers can introduce fundamental shifts to the gameplay experience without the risk of complexity creep. 
+
+- Each Mosaic element is fully decoupled from each other. Scale up your development by enabling a multitude of developers to work on various Mosaic elements at the same time.
+
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing. See deployment for notes on deploying the project on a live system.
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+You will need a copy of Unity 2022.3 LTS or later downloaded. Very few version-specific features are used so it should be fine across a variety of versions.
 
 ```
 Give examples
@@ -16,7 +29,7 @@ Give examples
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
+A step-by-step series of examples that tell you how to get a development env running
 
 Say what the step will be
 
@@ -32,53 +45,21 @@ until finished
 
 End with an example of getting some data out of the system or using it for a little demo
 
-## Running the tests
 
-Explain how to run the automated tests for this system
 
-### Break down into end to end tests
 
-Explain what these tests test and why
 
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+Jared Goronkin
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+No License
 
 ## Acknowledgments
 
