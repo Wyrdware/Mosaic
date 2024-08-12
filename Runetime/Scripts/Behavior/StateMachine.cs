@@ -8,94 +8,94 @@ namespace Mosaic
 {
     public class StateMachine : IStateMachine
     {
-        private Core _character;
+        private Core _core;
 
-        private Behavior _defaultState;//only active if all else is 0. 
+        private Behavior _defaultBehavior;//only active if all else is 0. 
 
-        private List<Behavior> _characterStates;
+        private List<Behavior> _behavior;
 
-        private Behavior _currentModule; // we save the entire module instead of something like the index because the size of the list is highly dynamic.
+        private Behavior _currentBehavior; // we save the entire module instead of something like the index because the size of the list is highly dynamic.
 
-        private BehaviorInstance _currentStateInstance;
+        private BehaviorInstance _currentInstance;
 
 
-        public StateMachine(Core character, Behavior defaultModule, List<Behavior> characterStates)
+        public StateMachine(Core character, Behavior defaultModule, List<Behavior> characterBehaviors)
         {
-            this._character = character;
-            this._defaultState = defaultModule;
-            this._characterStates = characterStates;
+            this._core = character;
+            this._defaultBehavior = defaultModule;
+            this._behavior = characterBehaviors;
         }
         public void Begin()// This must be called after every aspect of the character has been initialised. 
         {
-            TransformDataTag transformDataTag = _character.DataTags.GetTag<TransformDataTag>();
-            transformDataTag.Position = _character.transform.position;
-            transformDataTag.Rotation = _character.transform.rotation;
+            TransformDataTag transformDataTag = _core.DataTags.GetTag<TransformDataTag>();
+            transformDataTag.Position = _core.transform.position;
+            transformDataTag.Rotation = _core.transform.rotation;
             
 
-            Debug.Assert(_currentStateInstance == null);
+            Debug.Assert(_currentInstance == null);
 
-            Transition(_defaultState);
+            Transition(_defaultBehavior);
         }            
 
-        public void AddState(Behavior state)
+        public void AddBehavior(Behavior behavior)
         {
-            _characterStates.Add(state);
+            _behavior.Add(behavior);
         }
-        public void RemoveState(Behavior state)
+        public void RemoveBehavior(Behavior behavior)
         {
-            _characterStates.Remove(state);
+            _behavior.Remove(behavior);
         }
 
-        public void Transition(BehaviorInputType input)// Calculates the next apropriate state to transition to
+        public void Transition(BehaviorInputType input)// Calculates the next apropriate behavior to transition to
         {
             
-            if (_currentStateInstance != null)
+            if (_currentInstance != null)
             {
-                _currentStateInstance.Exit();
-                _currentStateInstance = null;
+                _currentInstance.Exit();
+                _currentInstance = null;
             }
             
-            Behavior nextState = Behavior.DecideNewState(_characterStates, _character, _currentModule.State, input);
-            EnterNewState(nextState);
+            Behavior nextBehavior = Behavior.DecideNewBehavior(_behavior, _core, _currentBehavior.BehaviorTypes, input);
+            EnterNewBehavior(nextBehavior);
         }
-        public void Transition(Behavior nextState)
+        public void Transition(Behavior nextBehavior)
         {
             
-            if (_currentStateInstance != null)
+            if (_currentInstance != null)
             {
-                _currentStateInstance.Exit();
-                _currentStateInstance = null;
+                _currentInstance.Exit();
+                _currentInstance = null;
             }
-            EnterNewState(nextState);
+            EnterNewBehavior(nextBehavior);
         }
-        private void EnterNewState(Behavior nextState)//choose a new state, This module doesn't need to be housed within this class.
+        private void EnterNewBehavior(Behavior nextBehavior)//choose a new behavior, This module doesn't need to be housed within this class.
         {
 
 
-            if (nextState == null)
+            if (nextBehavior == null)
             {
-                nextState = _defaultState;
-                Debug.LogWarning("NO VALID STATE, Transitioning to default module.");
+                nextBehavior = _defaultBehavior;
+                Debug.LogWarning("NO VALID behavior, Transitioning to default module.");
             }
 
-            _character.Input.OverrideControl(null);
-            _currentModule = nextState;
-            _currentStateInstance = BehaviorInstance.EnterNewStateInstance(nextState.ModuleState, _character);
-            Debug.Log("Transition to new state! " + _currentModule + ", " + _currentStateInstance);
+            _core.Input.OverrideControl(null);
+            _currentBehavior = nextBehavior;
+            _currentInstance = BehaviorInstance.EnterNewInstance(nextBehavior.Instance, _core);
+            Debug.Log("Transition to new behavior! " + _currentBehavior + ", " + _currentInstance);
         }
 
-        public BehaviorInstance GetCurrentStateInstance()
+        public BehaviorInstance GetCurrentInstance()
         {
-            return _currentStateInstance;
+            return _currentInstance;
         }
     }
     public interface IStateMachine
     {
-        public BehaviorInstance GetCurrentStateInstance();
-        public void AddState(Behavior state);
-        public void RemoveState(Behavior state);
+        public BehaviorInstance GetCurrentInstance();
+        public void AddBehavior(Behavior behavior);
+        public void RemoveBehavior(Behavior behavior);
         public void Transition(BehaviorInputType behaviorInput);
-        public void Transition(Behavior nextState);
+        public void Transition(Behavior nextBehavior);
 
     }
 }

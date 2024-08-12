@@ -26,7 +26,7 @@ namespace Mosaic
         {
             
             //Debug.Log("Tick modifier attatched to " + Core.gameObject.name);
-            Transform modLocation = GetCore().StateMachine.GetCurrentStateInstance().transform;
+            Transform modLocation = GetCore().StateMachine.GetCurrentInstance().transform;
             modLocation.Rotate(0,10,0);
         }
 

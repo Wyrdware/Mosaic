@@ -22,22 +22,22 @@ namespace Mosaic
         private Transform _targetSMRContainer;
 
         #region Entry/Exit
-        public static BehaviorInstance EnterNewStateInstance(GameObject statePrefab, Core character) //state instance factory
+        public static BehaviorInstance EnterNewInstance(GameObject instancePrefab, Core character) //Behavior instance factory
         {
             TransformDataTag transformDataTag = character.DataTags.GetTag<TransformDataTag>();
 
-            GameObject stateInstanceGO = Instantiate(statePrefab, transformDataTag.Position, transformDataTag.Rotation, character.transform.parent);
+            GameObject InstanceGO = Instantiate(instancePrefab, transformDataTag.Position, transformDataTag.Rotation, character.transform.parent);
 
 
-            BehaviorInstance stateInstance = stateInstanceGO.GetComponent<BehaviorInstance>() ;
-            stateInstance._core = character;
+            BehaviorInstance BehaviorInstance = InstanceGO.GetComponent<BehaviorInstance>() ;
+            BehaviorInstance._core = character;
 
 
-            character.Input.OverrideControl(stateInstance);
+            character.Input.OverrideControl(BehaviorInstance);
 
 
-            stateInstance.OnEnter();
-            return stateInstance;
+            BehaviorInstance.OnEnter();
+            return BehaviorInstance;
         }
 
 
@@ -47,7 +47,7 @@ namespace Mosaic
 
 
 
-        public void Exit()// This is called whenever the state is exited by the state machine.
+        public void Exit()// This is called whenever the behavior is exited by the behavior machine.
         {
             OnExit();// Exit is not virtual because the exectution of OnExit must occur after all other processes have resolved.
 
