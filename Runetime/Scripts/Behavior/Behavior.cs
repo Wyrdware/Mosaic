@@ -53,11 +53,7 @@ namespace Mosaic
                         finalBehavior = checkBehavior;
                     }
                 }
-
-
-
             }
-
             return finalBehavior;
         }
 
@@ -79,6 +75,16 @@ namespace Mosaic
             {
                 float decisionValue = 1;
 
+                if(_prevBehavior.Count == 0)
+                {
+                    Debug.LogError(this + "has no valid behavior types to transition from. Add a behavior type from which it may enter.");
+                }
+                if(_validInput.Count == 0)
+                {
+                    Debug.LogError(this + "has no required input. Add input to trigger this behavior");
+                }
+
+                //TODO: Replace the nulls with a Any object
                 //if the previous behavior is null, this behavior can transition from any previous behavior.
                 bool containsBehavior = _prevBehavior.Contains(null);
                 //if valid input contains null, any input can trigger this behavior.

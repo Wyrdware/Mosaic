@@ -116,7 +116,7 @@ namespace Mosaic
             if (nextBehavior == null)
             {
                 nextBehavior = _defaultBehavior;
-                Debug.LogWarning("NO VALID behavior, Transitioning to default module.");
+                Debug.LogWarning("No valid behavior, Transitioning to default module.");
             }
 
             _core.Input.OverrideControl(null);
