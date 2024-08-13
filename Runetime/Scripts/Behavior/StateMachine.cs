@@ -54,6 +54,10 @@ namespace Mosaic
             _behaviorsByID.Remove(behaviorID);
         }
 
+        public void Transition()
+        {
+            Transition((BehaviorInputType) null);
+        }
         public void Transition(BehaviorInputType input)// Calculates the next apropriate behavior to transition to
         {
             
@@ -65,6 +69,36 @@ namespace Mosaic
             Behavior nextBehavior = Behavior.DecideNewBehavior( _behaviorsByID, _core, _currentBehavior.BehaviorTypes, input);
             EnterNewBehavior(nextBehavior);
         }
+
+
+        //This would only be useful in a situation
+        public bool TryTransition()
+        {
+            return TryTransition(null);
+        }
+        public bool TryTransition(BehaviorInputType input)
+        {
+            Behavior nextBehavior = Behavior.DecideNewBehavior(_behaviorsByID, _core, _currentBehavior.BehaviorTypes, input);
+            if (nextBehavior != null)
+            {
+                if (_currentInstance != null)
+                {
+                    _currentInstance.Exit();
+                    _currentInstance = null;
+                }
+                EnterNewBehavior(nextBehavior);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nextBehavior"></param>
         public void Transition(Behavior nextBehavior)
         {
             
@@ -101,7 +135,10 @@ namespace Mosaic
         public BehaviorInstance GetCurrentInstance();
         public Guid AddBehavior(Behavior behavior);
         public void RemoveBehavior(Guid behaviorID);
+        public void Transition();
         public void Transition(BehaviorInputType behaviorInput);
+        public bool TryTransition();
+        public bool TryTransition(BehaviorInputType behaviorInput);
         public void Transition(Behavior nextBehavior);
 
     }
