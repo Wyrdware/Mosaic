@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 namespace Mosaic
 {
@@ -11,7 +12,7 @@ namespace Mosaic
         [SerializeField]
         private List<BehaviorType> _behaviorType;
         [SerializeField]
-        private List<DecisionData> _decisionData;    //deffine how the behavior is entered, method to enable the Behavior to exit
+        private List<DecisionData> _decisionData;//define how the behavior is entered, method to enable the Behavior to exit
         [SerializeField]
         private int _priority = 100;
 
@@ -27,11 +28,11 @@ namespace Mosaic
             }
             return decisionValue;
         }
-        public static Behavior DecideNewBehavior(List<Behavior> behaviors, ICore core, List<BehaviorType> currentBehaviorType, BehaviorInputType currentInputType)
+        public static Behavior DecideNewBehavior(Dictionary<Guid, Behavior> behaviors, ICore core, List<BehaviorType> currentBehaviorType, BehaviorInputType currentInputType)
         {
             Behavior finalBehavior = null;
             float finalValue = 0;
-            foreach (Behavior checkBehavior in behaviors)
+            foreach (Behavior checkBehavior in behaviors.Values)
             {
                 float checkValue = checkBehavior.GetDecisionValue(core, currentBehaviorType, currentInputType);
 
