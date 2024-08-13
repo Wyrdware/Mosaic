@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -12,18 +14,22 @@ namespace Mosaic
 
         private Behavior _defaultBehavior;//only active if all else is 0. 
 
-        private List<Behavior> _behavior;
+        private Dictionary<Guid, Behavior> _behaviorsByID = new();
 
         private Behavior _currentBehavior; // we save the entire module instead of something like the index because the size of the list is highly dynamic.
 
         private BehaviorInstance _currentInstance;
 
 
-        public StateMachine(Core character, Behavior defaultModule, List<Behavior> characterBehaviors)
+        public StateMachine(Core core, Behavior defaultModule, List<Behavior> behaviors)
         {
-            this._core = character;
+            this._core = core;
             this._defaultBehavior = defaultModule;
-            this._behavior = characterBehaviors;
+            foreach(Behavior behavior in behaviors)
+            {
+                AddBehavior(behavior);
+            }
+
         }
         public void Begin()// This must be called after every aspect of the character has been initialised. 
         {
@@ -37,15 +43,21 @@ namespace Mosaic
             Transition(_defaultBehavior);
         }            
 
-        public void AddBehavior(Behavior behavior)
+        public Guid AddBehavior(Behavior behavior)
         {
-            _behavior.Add(behavior);
+            Guid id = Guid.NewGuid();
+            _behaviorsByID.Add(id, behavior);
+            return id;
         }
-        public void RemoveBehavior(Behavior behavior)
+        public void RemoveBehavior(Guid behaviorID)
         {
-            _behavior.Remove(behavior);
+            _behaviorsByID.Remove(behaviorID);
         }
 
+        public void Transition()
+        {
+            Transition((BehaviorInputType) null);
+        }
         public void Transition(BehaviorInputType input)// Calculates the next apropriate behavior to transition to
         {
             
@@ -54,10 +66,39 @@ namespace Mosaic
                 _currentInstance.Exit();
                 _currentInstance = null;
             }
-            
-            Behavior nextBehavior = Behavior.DecideNewBehavior(_behavior, _core, _currentBehavior.BehaviorTypes, input);
+            Behavior nextBehavior = Behavior.DecideNewBehavior( _behaviorsByID, _core, _currentBehavior.BehaviorTypes, input);
             EnterNewBehavior(nextBehavior);
         }
+
+
+        //This would only be useful in a situation
+        public bool TryTransition()
+        {
+            return TryTransition(null);
+        }
+        public bool TryTransition(BehaviorInputType input)
+        {
+            Behavior nextBehavior = Behavior.DecideNewBehavior(_behaviorsByID, _core, _currentBehavior.BehaviorTypes, input);
+            if (nextBehavior != null)
+            {
+                if (_currentInstance != null)
+                {
+                    _currentInstance.Exit();
+                    _currentInstance = null;
+                }
+                EnterNewBehavior(nextBehavior);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nextBehavior"></param>
         public void Transition(Behavior nextBehavior)
         {
             
@@ -75,7 +116,7 @@ namespace Mosaic
             if (nextBehavior == null)
             {
                 nextBehavior = _defaultBehavior;
-                Debug.LogWarning("NO VALID behavior, Transitioning to default module.");
+                Debug.LogWarning("No valid behavior, Transitioning to default module.");
             }
 
             _core.Input.OverrideControl(null);
@@ -92,9 +133,12 @@ namespace Mosaic
     public interface IStateMachine
     {
         public BehaviorInstance GetCurrentInstance();
-        public void AddBehavior(Behavior behavior);
-        public void RemoveBehavior(Behavior behavior);
+        public Guid AddBehavior(Behavior behavior);
+        public void RemoveBehavior(Guid behaviorID);
+        public void Transition();
         public void Transition(BehaviorInputType behaviorInput);
+        public bool TryTransition();
+        public bool TryTransition(BehaviorInputType behaviorInput);
         public void Transition(Behavior nextBehavior);
 
     }
