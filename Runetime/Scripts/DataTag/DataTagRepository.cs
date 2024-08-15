@@ -72,6 +72,11 @@ namespace Mosaic
             }
         }
 
+        public void OnRespawn()
+        {
+            _dataTags.Clear();
+        }
+
         /// <summary>
         /// Checks wether the tag has been created
         /// </summary>
@@ -171,6 +176,7 @@ namespace Mosaic
         public bool IsTagged<T>() where T : DataTag;
         public void Subscribe<T>(DataTagEventType eventType, Action<DataTag> handler);
         public void Unsubscribe<T>(DataTagEventType eventType, Action<DataTag> handler);
+        public void OnRespawn();
     }
     public interface IDataTagUpdateEventTrigger
     {

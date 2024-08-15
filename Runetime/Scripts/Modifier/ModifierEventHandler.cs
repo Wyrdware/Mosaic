@@ -27,6 +27,10 @@ namespace Mosaic
                 _eventModifiers[eventMods.Type] = eventMods.Mods;
             }
         }
+        public void OnRespawn(List<EventMods> mods)
+        {
+            Debug.LogWarning("Respawn not fully impelemented.");
+        }
 
 
         public void ActivateEvent(ModifierEventType eventType)

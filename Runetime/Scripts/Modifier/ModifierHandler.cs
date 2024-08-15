@@ -30,6 +30,10 @@ namespace Mosaic
                 ApplyModifier(modifier, _core);
             }
         }
+        public void OnRespawn(List<Modifier> modifiers, List<ModifierDecorator> decorators)
+        {
+            Debug.LogWarning("OnReSpawn not implemented for modifiers");
+        }
 
 
         /// <summary>

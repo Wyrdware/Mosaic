@@ -12,7 +12,9 @@ namespace Mosaic
     {
         private Core _core;
 
-        private Behavior _defaultBehavior;//only active if all else is 0. 
+        private Behavior _spawn;
+
+        private Behavior _default;//only active if all else is 0. 
 
         private Dictionary<Guid, Behavior> _behaviorsByID = new();
 
@@ -21,10 +23,11 @@ namespace Mosaic
         private BehaviorInstance _currentInstance;
 
 
-        public StateMachine(Core core, Behavior defaultModule, List<Behavior> behaviors)
+        public StateMachine(Core core, Behavior spawnBehavior, Behavior defaultBehavior, List<Behavior> behaviors)
         {
             this._core = core;
-            this._defaultBehavior = defaultModule;
+            _spawn = spawnBehavior;
+            this._default = defaultBehavior;
             foreach(Behavior behavior in behaviors)
             {
                 AddBehavior(behavior);
@@ -33,14 +36,8 @@ namespace Mosaic
         }
         public void Begin()// This must be called after every aspect of the character has been initialised. 
         {
-            TransformDataTag transformDataTag = _core.DataTags.GetTag<TransformDataTag>();
-            transformDataTag.Position = _core.transform.position;
-            transformDataTag.Rotation = _core.transform.rotation;
-            
-
             Debug.Assert(_currentInstance == null);
-
-            Transition(_defaultBehavior);
+            OnRespawn();
         }            
 
         public Guid AddBehavior(Behavior behavior)
@@ -109,13 +106,22 @@ namespace Mosaic
             }
             EnterNewBehavior(nextBehavior);
         }
+
+        public void OnRespawn()
+        {
+            TransformDataTag transformDataTag = _core.DataTags.GetTag<TransformDataTag>();
+            transformDataTag.Position = _core.transform.position;
+            transformDataTag.Rotation = _core.transform.rotation;
+            Transition(_spawn);
+        }
+
         private void EnterNewBehavior(Behavior nextBehavior)//choose a new behavior, This module doesn't need to be housed within this class.
         {
 
 
             if (nextBehavior == null)
             {
-                nextBehavior = _defaultBehavior;
+                nextBehavior = _default;
                 Debug.LogWarning("No valid behavior, Transitioning to default module.");
             }
 
