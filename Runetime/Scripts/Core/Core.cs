@@ -14,6 +14,9 @@ namespace Mosaic
     [RequireComponent(typeof(CoreInput))]
     public class Core : MonoBehaviour, ICore
     {
+        [Tooltip("This behavior will activate when the entity is spawned.")]
+        [SerializeField]
+        private Behavior _spawnBehavior;
         [Tooltip("The actor will default to this behavior whenever there is not a valid behavior to transition to.")]
         [SerializeField]
         private Behavior _defaultBehavior;
@@ -27,7 +30,7 @@ namespace Mosaic
         private List<ModifierDecorator> _modifierDecorators;
         [Tooltip("Event modifiers activate whenever the corresponding event is triggered.")]
         [SerializeField]
-        private List<ModifierEventHandler.EventMods> _eventModifiers;
+        private List<ModifierEventHandler.EventMods> _eventModifiers;//Event modifiers were a solution to a problem that may be better addressed by decorators entirely, needs more research might be obsolete.
 
         private StateMachine _stateMachine;
 
@@ -44,12 +47,27 @@ namespace Mosaic
         {
             Input = GetComponent<CoreInput>();
             DataTags = new DataTagRepository();
-            _stateMachine = new StateMachine(this, _defaultBehavior, _behaviors);
+            _stateMachine = new StateMachine(this,_spawnBehavior, _defaultBehavior, _behaviors);
             _stateMachine.Begin();
 
             Modifiers = new ModifierHandler(this, _modifiers, _modifierDecorators);
             ModifierEvents = new ModifierEventHandler(this, _eventModifiers);
 
+        }
+        public void ReSpawn()
+        {
+            Debug.LogWarning("Respawning not fully implemented, this will not be fully functional until data tracking has been implemented.");
+            Input.OnRespawn();
+            DataTags.OnRespawn();
+            _stateMachine.OnRespawn();
+            Modifiers.OnRespawn(_modifiers, _modifierDecorators);
+            ModifierEvents.OnRespawn(_eventModifiers);
+            
+        }
+        public void SetSpawn(Vector3 position, Quaternion rotation)
+        {
+            transform.position = position;
+            transform.rotation = rotation;
         }
     }
 

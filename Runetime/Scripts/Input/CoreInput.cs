@@ -13,6 +13,7 @@ namespace Mosaic
     {
         protected BehaviorInstance BehaviorInstance;
 
+        public abstract void OnRespawn();
         public void OverrideControl(BehaviorInstance behaviorInstance)
         {
 
