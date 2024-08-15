@@ -112,6 +112,8 @@ namespace Mosaic
             TransformDataTag transformDataTag = _core.DataTags.GetTag<TransformDataTag>();
             transformDataTag.Position = _core.transform.position;
             transformDataTag.Rotation = _core.transform.rotation;
+            _currentInstance.transform.position = _core.transform.position;
+            _currentInstance.transform.rotation = _core.transform.rotation;
             Transition(_spawn);
         }
 
