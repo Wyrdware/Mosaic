@@ -43,6 +43,7 @@ namespace Mosaic
 
         public MonoBehaviour monoBehaviour => this;
 
+
         private void Awake()
         {
             Input = GetComponent<CoreInput>();
@@ -66,8 +67,8 @@ namespace Mosaic
         }
         public void SetSpawn(Vector3 position, Quaternion rotation)
         {
-            transform.position = position;
-            transform.rotation = rotation;
+            this.transform.position = position;
+            this.transform.rotation = rotation;
         }
     }
 

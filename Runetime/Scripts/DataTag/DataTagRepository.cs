@@ -75,6 +75,7 @@ namespace Mosaic
         public void OnRespawn()
         {
             _dataTags.Clear();
+
         }
 
         /// <summary>
