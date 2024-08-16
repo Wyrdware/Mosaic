@@ -37,7 +37,11 @@ namespace Mosaic
         public void Begin()// This must be called after every aspect of the character has been initialised. 
         {
             Debug.Assert(_currentInstance == null);
-            OnRespawn();
+            TransformDataTag transformDataTag = _core.DataTags.GetTag<TransformDataTag>();
+            transformDataTag.Position = _core.transform.position;
+            transformDataTag.Rotation = _core.transform.rotation;
+
+            Transition(_spawn);
         }            
 
         public Guid AddBehavior(Behavior behavior)
