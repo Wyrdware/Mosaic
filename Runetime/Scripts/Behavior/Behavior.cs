@@ -7,6 +7,11 @@ namespace Mosaic
     [CreateAssetMenu(fileName = "Behavior", menuName = "CharacterModule/Behavior", order = 1)]
     public class Behavior : ScriptableObject
     {
+        [TextArea(3, 10)]
+        [SerializeField]
+        private string _description;
+        public string Description => _description;
+
         [SerializeField]
         private GameObject _instance;//This gameobject contains all of the logic for the behavior of the character. It's a gameobject so it can be literaly anything as long as it has a script that dervives from Instance
         [SerializeField]
@@ -58,6 +63,7 @@ namespace Mosaic
         }
 
 
+        
 
 
         [System.Serializable]
