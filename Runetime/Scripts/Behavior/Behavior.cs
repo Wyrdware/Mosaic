@@ -23,6 +23,7 @@ namespace Mosaic
 
         public GameObject Instance => _instance;
         public List<BehaviorType> BehaviorTypes => _behaviorType;
+        public List<DecisionData> DecisionDatas => _decisionData;
 
         private float GetDecisionValue(ICore core, List<BehaviorType> currentBehaviorTypes, BehaviorInputType currentInputType)//Get how likeley this decision is to occur
         {
@@ -67,7 +68,7 @@ namespace Mosaic
 
 
         [System.Serializable]
-        protected class DecisionData// decide if the behavior is available for transfer, and give it a score of 0 to 1
+        public class DecisionData// decide if the behavior is available for transfer, and give it a score of 0 to 1
         {
             [Tooltip("If null, any behavior is valid")]
             [SerializeField]
@@ -77,6 +78,11 @@ namespace Mosaic
             private List<BehaviorInputType> _validInput;//if the input is valid, the transistion is possible
             [SerializeField]
             private List<BaseDecisionAlgorithm> _decisionAlgorithms;//if the decision value is greater than 0 the transition is possible. All Decision values are multiplied together to gather the final value. The highest value is activated.
+            
+            public List<BehaviorType> PrevBehavior => _prevBehavior;
+            public List<BehaviorInputType> ValidInput => _validInput;
+            public List<BaseDecisionAlgorithm> DecisionAlgorithms => _decisionAlgorithms;
+            
             public float GetDecisionValue(ICore core, List<BehaviorType> currentBehaviorTypes, BehaviorInputType currentInputType)
             {
                 float decisionValue = 1;
