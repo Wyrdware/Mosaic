@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
+
 namespace Mosaic
 {
     [CreateAssetMenu(fileName = "Behavior", menuName = "CharacterModule/Behavior", order = 1)]
@@ -24,6 +26,9 @@ namespace Mosaic
         public GameObject Instance => _instance;
         public List<BehaviorType> BehaviorTypes => _behaviorType;
         public List<DecisionData> DecisionDatas => _decisionData;
+
+
+
 
         private float GetDecisionValue(ICore core, List<BehaviorType> currentBehaviorTypes, BehaviorInputType currentInputType)//Get how likeley this decision is to occur
         {
@@ -63,8 +68,62 @@ namespace Mosaic
             return finalBehavior;
         }
 
+        public string GetTypeText()
+        {
+            if (BehaviorTypes.Count > 0)
+            {
+                string typeText = "Type: " + BehaviorTypes[0].name;
+                for (int i = 1; i < BehaviorTypes.Count; i++)
+                {
+                    typeText += ", " + BehaviorTypes[i].name;
+                }
+                return typeText;
+            }
+            else
+            {
+                return "Type: None";
+            }
+        }
 
-        
+        public List<string> GetTutorialText()
+        {
+            List<string> controls = new List<string>();
+            foreach (DecisionData data in DecisionDatas)
+            {
+                string controlText = "Activate a " + data.ValidInput[0].name + " ";
+
+                for (int i = 1; i < data.ValidInput.Count; i++)
+                {
+                    controlText += ", or " + data.ValidInput[i].name;
+                }
+
+                if (data.PrevBehavior[0] == null)
+                {
+                    controlText += "while performing any action";
+                }
+                else
+                {
+                    controlText += "while " + data.PrevBehavior[0].name + "ing";
+                    for (int i = 1; i < data.PrevBehavior.Count; i++)
+                    {
+                        controlText += ", or a " + data.PrevBehavior[i].name + "ing";
+                    }
+                }
+
+                if (data.DecisionAlgorithms.Count > 0)
+                {
+                    controlText += "as well as ";
+                    for (int i = 0; i < data.DecisionAlgorithms.Count; i++)
+                    {
+                        controlText += data.DecisionAlgorithms[i].name;
+                    }
+                }
+
+                controlText += ".";
+                controls.Add(controlText);
+            }
+            return controls;
+        }
 
 
         [System.Serializable]
