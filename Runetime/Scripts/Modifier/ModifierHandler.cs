@@ -121,5 +121,11 @@ namespace Mosaic
             return id;
 
         }
+        public void RemoveModifier(Guid id)
+        {
+            ModifierProcess process = _processByID[id];
+            process.Clear();
+
+        }
     }
 }

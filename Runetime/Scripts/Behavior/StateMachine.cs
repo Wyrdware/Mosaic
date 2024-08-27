@@ -18,6 +18,9 @@ namespace Mosaic
 
         private Dictionary<Guid, Behavior> _behaviorsByID = new();
 
+
+        //TODO: Replace _currentBehavior with a list of behaviors, the behaviors all get pushed back when a new behavior is added, keeping the current behavior at the front.
+        //This will allow for us to check for a sequence of behaviors, and not just the current one when developing combo attacks/actions.
         private Behavior _currentBehavior; // we save the entire module instead of something like the index because the size of the list is highly dynamic.
 
         private BehaviorInstance _currentInstance;
