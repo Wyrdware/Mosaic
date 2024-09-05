@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.TextCore.Text;
+
 
 namespace Mosaic
 {
@@ -26,8 +24,10 @@ namespace Mosaic
         {
             TransformDataTag transformDataTag = character.DataTags.GetTag<TransformDataTag>();
 
+            bool activeCache = instancePrefab.activeSelf;
+            instancePrefab.SetActive(false);
             GameObject InstanceGO = Instantiate(instancePrefab, transformDataTag.Position, transformDataTag.Rotation, character.transform.parent);
-
+            instancePrefab.SetActive(activeCache);
 
             BehaviorInstance BehaviorInstance = InstanceGO.GetComponent<BehaviorInstance>() ;
             BehaviorInstance._core = character;
@@ -35,8 +35,7 @@ namespace Mosaic
 
             character.Input.OverrideControl(BehaviorInstance);
 
-
-            BehaviorInstance.OnEnter();
+            InstanceGO.SetActive(true);
             return BehaviorInstance;
         }
 
@@ -45,7 +44,10 @@ namespace Mosaic
         protected abstract void OnEnter();
         protected abstract void OnExit();
 
-
+        private void OnEnable()
+        {
+            OnEnter();
+        }
 
         public void Exit()// This is called whenever the behavior is exited by the behavior machine.
         {

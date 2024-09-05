@@ -48,6 +48,10 @@ namespace Mosaic
         {
             Input = GetComponent<CoreInput>();
             DataTags = new DataTagRepository();
+            foreach(IInspectorDataTag idt in GetComponents<IInspectorDataTag>())
+            {
+                idt.AddTagToCore(this);
+            }
             _stateMachine = new StateMachine(this,_spawnBehavior, _defaultBehavior, _behaviors);
             _stateMachine.Begin();
 
