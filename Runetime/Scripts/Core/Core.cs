@@ -64,6 +64,10 @@ namespace Mosaic
             Debug.LogWarning("Respawning not fully implemented, this will not be fully functional until data tracking has been implemented.");
             Input.OnRespawn();
             DataTags.OnRespawn();
+            foreach (IInspectorDataTag idt in GetComponents<IInspectorDataTag>())
+            {
+                idt.AddTagToCore(this);
+            }
             _stateMachine.OnRespawn();
             Modifiers.OnRespawn(_modifiers, _modifierDecorators);
             ModifierEvents.OnRespawn(_eventModifiers);
