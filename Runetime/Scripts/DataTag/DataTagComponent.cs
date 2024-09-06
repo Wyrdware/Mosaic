@@ -14,6 +14,7 @@ namespace Mosaic
         protected T _data;
         public void AddTagToCore(Core core)
         {
+            T data = (T) _data.Clone();
             core.DataTags.AddOrUpdateTag<T>(_data);
         }
 
