@@ -11,9 +11,15 @@ namespace Mosaic
     /// This is essential for featurse such as smooth movement between state transitions.
     /// DataTags can also be used to transmit information about hit events.
     /// </summary>
-    public abstract class DataTag
+    public abstract class DataTag : ICloneable
     {
         private IDataTagUpdateEventTrigger _updateEventTrigger;
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
         public void SetHandler(IDataTagUpdateEventTrigger trigger)
         {
             _updateEventTrigger = trigger;
