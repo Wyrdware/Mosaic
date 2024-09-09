@@ -61,13 +61,12 @@ namespace Mosaic
         }
         public void Transition(BehaviorInputType input)// Calculates the next apropriate behavior to transition to
         {
-            
+            Behavior nextBehavior = Behavior.DecideNewBehavior(_behaviorsByID, _core, _currentBehavior.BehaviorTypes, input);
             if (_currentInstance != null)
             {
                 _currentInstance.Exit();
                 _currentInstance = null;
             }
-            Behavior nextBehavior = Behavior.DecideNewBehavior( _behaviorsByID, _core, _currentBehavior.BehaviorTypes, input);
             EnterNewBehavior(nextBehavior);
         }
 
