@@ -36,6 +36,7 @@ namespace Mosaic
             character.Input.OverrideControl(BehaviorInstance);
 
             InstanceGO.SetActive(true);
+            BehaviorInstance.OnEnter();
             return BehaviorInstance;
         }
 
@@ -46,7 +47,7 @@ namespace Mosaic
 
         private void OnEnable()
         {
-            OnEnter();
+            
         }
 
         public void Exit()// This is called whenever the behavior is exited by the behavior machine.
