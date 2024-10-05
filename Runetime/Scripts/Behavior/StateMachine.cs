@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Windows;
 
 
 namespace Mosaic
@@ -22,6 +23,7 @@ namespace Mosaic
 
         private BehaviorInstance _currentInstance;
 
+        private List<HashSet<BehaviorType>> _comboSequence = new();
 
         public StateMachine(Core core, Behavior spawnBehavior, Behavior defaultBehavior, List<Behavior> behaviors)
         {
@@ -55,30 +57,39 @@ namespace Mosaic
             _behaviorsByID.Remove(behaviorID);
         }
 
-        public void Transition()
+
+        public static Behavior DecideNewBehavior(Dictionary<Guid, Behavior> behaviors, ICore core, List<HashSet<BehaviorType>> activeComboSequence)
         {
-            Transition((BehaviorInputType) null);
-        }
-        public void Transition(BehaviorInputType input)// Calculates the next apropriate behavior to transition to
-        {
-            Behavior nextBehavior = Behavior.DecideNewBehavior(_behaviorsByID, _core, _currentBehavior.BehaviorTypes, input);
-            if (_currentInstance != null)
+            Behavior finalBehavior = null;
+            float finalValue = 0;
+            foreach (Behavior checkBehavior in behaviors.Values)
             {
-                _currentInstance.Exit();
-                _currentInstance = null;
+                float checkValue = checkBehavior.GetDecisionValue(core, activeComboSequence);
+
+                if (checkValue > finalValue)
+                {
+                    finalBehavior = checkBehavior;
+                    finalValue = checkValue;
+                }
+                else if (finalBehavior != null && checkValue == finalValue)
+                {
+                    if (checkBehavior.Priority == finalBehavior.Priority)
+                    {
+                        throw new System.Exception("Can't decide between multiple behaviors with the same decision value, and the same priority");
+                    }
+                    else if (checkBehavior.Priority > finalBehavior.Priority)
+                    {
+                        finalBehavior = checkBehavior;
+                    }
+                }
             }
-            EnterNewBehavior(nextBehavior);
+            return finalBehavior;
         }
 
 
-        //This would only be useful in a situation
         public bool TryTransition()
         {
-            return TryTransition(null);
-        }
-        public bool TryTransition(BehaviorInputType input)
-        {
-            Behavior nextBehavior = Behavior.DecideNewBehavior(_behaviorsByID, _core, _currentBehavior.BehaviorTypes, input);
+            Behavior nextBehavior = DecideNewBehavior(_behaviorsByID, _core, _comboSequence);
             if (nextBehavior != null)
             {
                 if (_currentInstance != null)
@@ -94,9 +105,19 @@ namespace Mosaic
                 return false;
             }
         }
+        public void Transition()
+        {
+            Behavior nextBehavior = DecideNewBehavior(_behaviorsByID, _core, _comboSequence);
 
+            if (_currentInstance != null)
+            {
+                _currentInstance.Exit();
+                _currentInstance = null;
+            }
+            EnterNewBehavior(nextBehavior);
+        }
         /// <summary>
-        /// 
+        /// Transition to the spedified behavior
         /// </summary>
         /// <param name="nextBehavior"></param>
         public void Transition(Behavior nextBehavior)
@@ -129,7 +150,8 @@ namespace Mosaic
                 nextBehavior = _default;
                 Debug.LogWarning("No valid behavior, Transitioning to default module.");
             }
-
+            Debug.Log(_comboSequence.Count);
+            _comboSequence.Insert(0, nextBehavior.BehaviorTypes);
             _core.Input.OverrideControl(null);
             _currentBehavior = nextBehavior;
             _currentInstance = BehaviorInstance.EnterNewInstance(nextBehavior.Instance, _core);
@@ -147,9 +169,7 @@ namespace Mosaic
         public Guid AddBehavior(Behavior behavior);
         public void RemoveBehavior(Guid behaviorID);
         public void Transition();
-        public void Transition(BehaviorInputType behaviorInput);
         public bool TryTransition();
-        public bool TryTransition(BehaviorInputType behaviorInput);
         public void Transition(Behavior nextBehavior);
 
     }

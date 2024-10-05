@@ -24,58 +24,31 @@ namespace Mosaic
         private int _priority = 100;
 
         public GameObject Instance => _instance;
-        public List<BehaviorType> BehaviorTypes => _behaviorType;
+        public HashSet<BehaviorType> BehaviorTypes => new HashSet<BehaviorType>(_behaviorType);
         public List<DecisionData> DecisionDatas => _decisionData;
+        public int Priority => _priority;
 
 
 
 
-        private float GetDecisionValue(ICore core, List<BehaviorType> currentBehaviorTypes, BehaviorInputType currentInputType)//Get how likeley this decision is to occur
+        public float GetDecisionValue(ICore core, List<HashSet<BehaviorType>> activeComboSequence)//Get how likeley this decision is to occur
         {
             float decisionValue = 0;
             foreach (DecisionData data in _decisionData)
             {
-                decisionValue = Mathf.Max(decisionValue, data.GetDecisionValue(core, currentBehaviorTypes, currentInputType));
+                decisionValue = Mathf.Max(decisionValue, data.GetDecisionValue(core, activeComboSequence));
             }
             return decisionValue;
-        }
-        public static Behavior DecideNewBehavior(Dictionary<Guid, Behavior> behaviors, ICore core, List<BehaviorType> currentBehaviorType, BehaviorInputType currentInputType)
-        {
-            Behavior finalBehavior = null;
-            float finalValue = 0;
-            foreach (Behavior checkBehavior in behaviors.Values)
-            {
-                float checkValue = checkBehavior.GetDecisionValue(core, currentBehaviorType, currentInputType);
-
-
-                if (checkValue > finalValue)
-                {
-                    finalBehavior = checkBehavior;
-                    finalValue = checkValue;
-                }
-                else if (finalBehavior != null && checkValue == finalValue)
-                {
-                    if (checkBehavior._priority == finalBehavior._priority)
-                    {
-                        throw new System.Exception("Can't decide between multiple behaviors with the same decision value, and the same priority");
-                    }
-                    else if (checkBehavior._priority > finalBehavior._priority)
-                    {
-                        finalBehavior = checkBehavior;
-                    }
-                }
-            }
-            return finalBehavior;
         }
 
         public string GetTypeText()
         {
             if (BehaviorTypes.Count > 0)
             {
-                string typeText = "Type: " + BehaviorTypes[0].name;
-                for (int i = 1; i < BehaviorTypes.Count; i++)
+                string typeText = "Type: ";
+                foreach (BehaviorType behaviorType in BehaviorTypes)
                 {
-                    typeText += ", " + BehaviorTypes[i].name;
+                    typeText += ", " + behaviorType.name;
                 }
                 return typeText;
             }
@@ -90,23 +63,16 @@ namespace Mosaic
             List<string> controls = new List<string>();
             foreach (DecisionData data in DecisionDatas)
             {
-                string controlText = "Activate a " + data.ValidInput[0].name + " ";
+                string controlText = "Activate a ";
 
-                for (int i = 1; i < data.ValidInput.Count; i++)
-                {
-                    controlText += ", or " + data.ValidInput[i].name;
-                }
 
-                if (data.PrevBehavior[0] == null)
+                if (data.ComboSequence.Count>0)
+               
                 {
-                    controlText += "while performing any action";
-                }
-                else
-                {
-                    controlText += "while " + data.PrevBehavior[0].name + "ing";
-                    for (int i = 1; i < data.PrevBehavior.Count; i++)
+                    controlText += "while " + data.ComboSequence[0].name + "ing";
+                    for (int i = 1; i < data.ComboSequence.Count; i++)
                     {
-                        controlText += ", or a " + data.PrevBehavior[i].name + "ing";
+                        controlText += ", or a " + data.ComboSequence[i].name + "ing";
                     }
                 }
 
@@ -129,49 +95,45 @@ namespace Mosaic
         [System.Serializable]
         public class DecisionData// decide if the behavior is available for transfer, and give it a score of 0 to 1
         {
-            [Tooltip("If null, any behavior is valid")]
             [SerializeField]
-            private List<BehaviorType> _prevBehavior;// if it's in this behavior, the transition is possible
-            [Tooltip("If null, any input is valid")]
-            [SerializeField]
-            private List<BehaviorInputType> _validInput;//if the input is valid, the transistion is possible
+            private List<BehaviorType> _comboSequence;// if it's in this behavior, the transition is possible
+
             [SerializeField]
             private List<BaseDecisionAlgorithm> _decisionAlgorithms;//if the decision value is greater than 0 the transition is possible. All Decision values are multiplied together to gather the final value. The highest value is activated.
-            
-            public List<BehaviorType> PrevBehavior => _prevBehavior;
-            public List<BehaviorInputType> ValidInput => _validInput;
+
+            public List<BehaviorType> ComboSequence => _comboSequence;
+
             public List<BaseDecisionAlgorithm> DecisionAlgorithms => _decisionAlgorithms;
-            
-            public float GetDecisionValue(ICore core, List<BehaviorType> currentBehaviorTypes, BehaviorInputType currentInputType)
+
+
+            /// <summary>
+            /// A value between 0 and 1 that is weighted against other behaviors to determine what comes next
+            /// </summary>
+            /// <param name="core"></param>
+            /// <param name="activeBehaviorCombo"></param>
+            /// <returns></returns>
+            public float GetDecisionValue(ICore core, List<HashSet<BehaviorType>> activeBehaviorCombo)
             {
+                //initialize decision value
                 float decisionValue = 1;
 
-                if(_prevBehavior.Count == 0)
+                //check to see if the combo matches
+                //This could be done as a custo decision axis by the user, but it's such a common requirement it makes sense to have it hard coded
+                bool isCombo = true;
+                
+                if (activeBehaviorCombo.Count <ComboSequence.Count )
                 {
-                    Debug.LogError(this + "has no valid behavior types to transition from. Add a behavior type from which it may enter.");
+                    isCombo = false;
                 }
-                if(_validInput.Count == 0)
+                for (int i = 0; i < ComboSequence.Count; i++)
                 {
-                    Debug.LogError(this + "has no required input. Add input to trigger this behavior");
+                    int reverseIndex = ComboSequence.Count - i - 1;
+                    isCombo = isCombo && activeBehaviorCombo[i].Contains(ComboSequence[reverseIndex]);
                 }
+                //apply combo check to decision value
+                decisionValue *= isCombo ? 1 : 0;
 
-                //TODO: Replace the nulls with a Any object
-                //if the previous behavior is null, this behavior can transition from any previous behavior.
-                bool containsBehavior = _prevBehavior.Contains(null);
-                //if valid input contains null, any input can trigger this behavior.
-                bool containsNullInput = _validInput.Contains(null);
-
-
-                foreach (BehaviorType behaviorTypes in currentBehaviorTypes)
-                {
-                    containsBehavior = containsBehavior || _prevBehavior.Contains(behaviorTypes);
-
-                }
-
-                decisionValue *= containsBehavior ? 1 : 0;
-
-                decisionValue *= _validInput.Contains(currentInputType)||containsNullInput ? 1 : 0;
-
+                //apply decision axis to to decision values
                 foreach (BaseDecisionAlgorithm decisionAlgorithm in _decisionAlgorithms)
                 {
                     decisionValue *= decisionAlgorithm.CheckDecesion(core);
