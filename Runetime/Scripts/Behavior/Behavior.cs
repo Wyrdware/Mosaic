@@ -66,11 +66,8 @@ namespace Mosaic
                 string controlText = "Activate a ";
 
 
-                if (data.ComboSequence[0] == null)
-                {
-                    controlText += "while performing any action";
-                }
-                else
+                if (data.ComboSequence.Count>0)
+               
                 {
                     controlText += "while " + data.ComboSequence[0].name + "ing";
                     for (int i = 1; i < data.ComboSequence.Count; i++)
@@ -98,10 +95,8 @@ namespace Mosaic
         [System.Serializable]
         public class DecisionData// decide if the behavior is available for transfer, and give it a score of 0 to 1
         {
-            [Tooltip("If null, any behavior is valid")]
             [SerializeField]
             private List<BehaviorType> _comboSequence;// if it's in this behavior, the transition is possible
-            [Tooltip("If null, any input is valid")]
 
             [SerializeField]
             private List<BaseDecisionAlgorithm> _decisionAlgorithms;//if the decision value is greater than 0 the transition is possible. All Decision values are multiplied together to gather the final value. The highest value is activated.
@@ -124,15 +119,16 @@ namespace Mosaic
 
                 //check to see if the combo matches
                 //This could be done as a custo decision axis by the user, but it's such a common requirement it makes sense to have it hard coded
-                bool isCombo = false;
-                if (_comboSequence.Count == 0)
+                bool isCombo = true;
+                
+                if (activeBehaviorCombo.Count <ComboSequence.Count )
                 {
-                    isCombo = true;
+                    isCombo = false;
                 }
-
                 for (int i = 0; i < ComboSequence.Count; i++)
                 {
-                    isCombo = isCombo && activeBehaviorCombo[i].Contains(ComboSequence[i]);
+                    int reverseIndex = ComboSequence.Count - i - 1;
+                    isCombo = isCombo && activeBehaviorCombo[i].Contains(ComboSequence[reverseIndex]);
                 }
                 //apply combo check to decision value
                 decisionValue *= isCombo ? 1 : 0;
