@@ -66,16 +66,21 @@ namespace Mosaic
             {
                 float checkValue = checkBehavior.GetDecisionValue(core, activeComboSequence);
 
-                if (checkValue > finalValue)
+                if(checkValue <= 0)
+                {
+                    continue;
+                }
+                else if (checkValue > finalValue)
                 {
                     finalBehavior = checkBehavior;
                     finalValue = checkValue;
                 }
-                else if (finalBehavior != null && checkValue == finalValue)
+                else if (checkValue == finalValue)
                 {
                     if (checkBehavior.Priority == finalBehavior.Priority)
                     {
-                        throw new System.Exception("Can't decide between multiple behaviors with the same decision value, and the same priority");
+
+                        throw new System.Exception("Value of: "+checkValue + " Can't decide between "+ checkBehavior + " and " + finalBehavior + " multiple behaviors with the same decision value, and the same priority");
                     }
                     else if (checkBehavior.Priority > finalBehavior.Priority)
                     {
