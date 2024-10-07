@@ -97,11 +97,6 @@ namespace Mosaic
             Behavior nextBehavior = DecideNewBehavior(_behaviorsByID, _core, _comboSequence);
             if (nextBehavior != null)
             {
-                if (_currentInstance != null)
-                {
-                    _currentInstance.Exit();
-                    _currentInstance = null;
-                }
                 EnterNewBehavior(nextBehavior);
                 return true;
             }
@@ -114,11 +109,6 @@ namespace Mosaic
         {
             Behavior nextBehavior = DecideNewBehavior(_behaviorsByID, _core, _comboSequence);
 
-            if (_currentInstance != null)
-            {
-                _currentInstance.Exit();
-                _currentInstance = null;
-            }
             EnterNewBehavior(nextBehavior);
         }
         /// <summary>
@@ -128,11 +118,7 @@ namespace Mosaic
         public void Transition(Behavior nextBehavior)
         {
             
-            if (_currentInstance != null)
-            {
-                _currentInstance.Exit();
-                _currentInstance = null;
-            }
+
             EnterNewBehavior(nextBehavior);
         }
 
@@ -159,6 +145,8 @@ namespace Mosaic
             _comboSequence.Insert(0, nextBehavior.BehaviorTypes);
             _core.Input.OverrideControl(null);
             _currentBehavior = nextBehavior;
+
+            if (_currentInstance != null) _currentInstance.Exit();
             _currentInstance = BehaviorInstance.EnterNewInstance(nextBehavior.Instance, _core);
             Debug.Log("Transition to new behavior! " + _currentBehavior + ", " + _currentInstance);
         }
