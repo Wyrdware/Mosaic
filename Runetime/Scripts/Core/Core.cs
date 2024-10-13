@@ -80,6 +80,11 @@ namespace Mosaic
             this.transform.position = position;
             this.transform.rotation = rotation;
         }
+        public void RemoveSet(Guid setID)
+        {
+            _stateMachine.RemoveSet(setID);
+            Modifiers.RemoveSet(setID);
+        }
     }
 
     public interface ICore
