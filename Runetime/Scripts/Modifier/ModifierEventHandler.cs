@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,7 @@ namespace Mosaic
         private ICore _characterCore;
         private Dictionary<ModifierEventType, List<(Modifier,ICore)>> _eventModifiers = new();
 
+        Guid placeholder = new Guid();
         public ModifierEventHandler(ICore characterCore, List<EventMods> mods)
         {
             this._characterCore = characterCore;
@@ -35,17 +37,20 @@ namespace Mosaic
 
         public void ActivateEvent(ModifierEventType eventType)
         {
+            Debug.LogWarning("Event Mods not fully impelemented.");
             foreach ((Modifier, ICore) modifier in _eventModifiers[eventType])
             {
-                _characterCore.Modifiers.ApplyModifier(modifier.Item1, modifier.Item2);
+                _characterCore.Modifiers.AddModifier(modifier.Item1, modifier.Item2, placeholder);
             }
         }
         public void AddEventMod(ModifierEventType eventType, Modifier modifier, ICore origin)
         {
+            Debug.LogWarning("Event Mods not fully impelemented.");
             _eventModifiers[eventType].Add((modifier,origin));
         }
         public void RemoveEventMod(ModifierEventType eventType, Modifier modifier, ICore origin)
         {
+            Debug.LogWarning("Event Mods not fully impelemented.");
             _eventModifiers[eventType].Remove((modifier,origin));
         }
     }

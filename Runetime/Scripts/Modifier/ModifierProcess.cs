@@ -18,6 +18,7 @@ namespace Mosaic
         private List<Guid> _modifiers;
         
         private Guid _id;
+        private Guid _setID;
         private ICore _core;
         private ICore _origin;
 
@@ -32,11 +33,12 @@ namespace Mosaic
 
 
 
-        public ModifierProcess(Guid id, Modifier modifier, List<(Guid, ModifierDecorator)> decorators,ICore core, ICore origin)
+        public ModifierProcess(Modifier modifier, List<(ModifierDecorator, Guid, Guid)> decorators,ICore core, ICore origin, Guid id, Guid setID)
         {
            
             //Set Values
             _id = id;
+            _setID = setID;
             _core = core;
             _origin = origin;
             _isInstance = true;
@@ -44,7 +46,7 @@ namespace Mosaic
 
             //Instanciate modifier
             Modifier instance = ScriptableObject.Instantiate(modifier);
-            instance.SetProcess(id, this);
+            instance.Initialize(this, id, setID);
             _instance.Add(id, instance);
             _modifiers = new() { id };
             
@@ -56,27 +58,27 @@ namespace Mosaic
 
         }
 
-        private IModifier CreateDecorator(Guid id, ModifierDecorator decorator)
+        private IModifier CreateDecorator(ModifierDecorator decorator,Guid id, Guid setID)
         {
             ScriptableObject decoratorAsSO = (ScriptableObject)decorator;//This mess of casting feels awful and is confusing to look at, but it works so I'm leaving it for now
             IModifier instance = (IModifier)ScriptableObject.Instantiate(decoratorAsSO);
-            instance.SetProcess(id, this);
+            instance.Initialize(this, id, setID);
             return instance;
         }
-        public void AddDecorator(Guid id, ModifierDecorator decorator)
+        public void AddDecorator(ModifierDecorator decorator, Guid id, Guid setID)
         {
-            IModifier instance = CreateDecorator(id, decorator);
+            IModifier instance = CreateDecorator(decorator, id, setID);
             _instance.Add(id, instance);
             _modifiers.Add(id);
             _modifiers.Sort((x, y) => _instance[y].GetPriority().CompareTo(_instance[x].GetPriority()));
         }
-        public void AddDecorator(List<(Guid, ModifierDecorator)> decorators)
+        public void AddDecorator(List<(ModifierDecorator,Guid,Guid)> decorators)
         {
-            foreach ((Guid, ModifierDecorator) decorator in decorators)
+            foreach ((ModifierDecorator, Guid, Guid) decorator in decorators)
             {
-                IModifier instance = CreateDecorator(decorator.Item1, decorator.Item2);
-                _instance.Add(decorator.Item1, instance);
-                _modifiers.Add(decorator.Item1);
+                IModifier instance = CreateDecorator(decorator.Item1, decorator.Item2, decorator.Item3);
+                _instance.Add(decorator.Item2, instance);
+                _modifiers.Add(decorator.Item2);
             }
             _modifiers.Sort((x, y) => _instance[y].GetPriority().CompareTo(_instance[x].GetPriority()));
         }

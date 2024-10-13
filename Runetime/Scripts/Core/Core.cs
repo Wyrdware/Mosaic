@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 
@@ -43,6 +44,7 @@ namespace Mosaic
 
         public MonoBehaviour monoBehaviour => this;
 
+        private Guid _defaultSetID = new Guid();
 
         private void Awake()
         {
@@ -52,10 +54,10 @@ namespace Mosaic
             {
                 idt.AddTagToCore(this);
             }
-            _stateMachine = new StateMachine(this,_spawnBehavior, _defaultBehavior, _behaviors);
+            _stateMachine = new StateMachine(this,_spawnBehavior, _defaultBehavior, _behaviors, _defaultSetID);
             _stateMachine.Begin();
 
-            Modifiers = new ModifierHandler(this, _modifiers, _modifierDecorators);
+            Modifiers = new ModifierHandler(this, _modifiers, _modifierDecorators, _defaultSetID);
             ModifierEvents = new ModifierEventHandler(this, _eventModifiers);
 
         }
@@ -77,6 +79,11 @@ namespace Mosaic
         {
             this.transform.position = position;
             this.transform.rotation = rotation;
+        }
+        public void RemoveSet(Guid setID)
+        {
+            _stateMachine.RemoveSet(setID);
+            Modifiers.RemoveSet(setID);
         }
     }
 
