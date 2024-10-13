@@ -55,12 +55,16 @@ namespace Mosaic
         {
             //create unique id for the modifier
             Guid id = Guid.NewGuid();
+
+
             // store the unique id and the modifier in a dictionary
             _decoratorByID.Add(id, (decorator,setID));
 
             _decoratorsByType.TryAdd(decorator.GetComponentType(), new List<Guid>());
             _decoratorsByType[decorator.GetComponentType()].Add(id);
 
+            _decoratorIDsBySetID.TryAdd(setID, new List<Guid>());
+            _decoratorIDsBySetID[setID].Add(id);
 
             if (_processByType.ContainsKey(decorator.GetComponentType()))
             {
@@ -99,7 +103,8 @@ namespace Mosaic
         {
             Guid id = Guid.NewGuid();
             Type modifierType = modifier.GetType();
-
+            _processIDsBySetID.TryAdd(setID, new List<Guid>());
+            _processIDsBySetID[setID].Add(id);
             //Get a list of all modifier decorators
             // Decorator, ID, SetID
             List<(ModifierDecorator, Guid, Guid)> idDecorator = new(); 
