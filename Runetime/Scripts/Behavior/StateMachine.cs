@@ -14,8 +14,11 @@ namespace Mosaic
 
         private Behavior _default;//only active if all else is 0. 
 
-        private Dictionary<Guid, Behavior> _behaviorsByID = new();
+        //ID, Behavior, SetID
+        private Dictionary<Guid, (Behavior, Guid)> _behaviorsByID = new();
 
+        //SetID BehaviorIDs
+        private readonly Dictionary<Guid, List<Guid>> _behaviorIDsBySetID = new();
 
         //TODO: Replace _currentBehavior with a list of behaviors, the behaviors all get pushed back when a new behavior is added, keeping the current behavior at the front.
         //This will allow for us to check for a sequence of behaviors, and not just the current one when developing combo attacks/actions.
@@ -25,14 +28,16 @@ namespace Mosaic
 
         private List<HashSet<BehaviorType>> _comboSequence = new();
 
-        public StateMachine(Core core, Behavior spawnBehavior, Behavior defaultBehavior, List<Behavior> behaviors)
+
+
+        public StateMachine(Core core, Behavior spawnBehavior, Behavior defaultBehavior, List<Behavior> behaviors, Guid defaultSetID)
         {
             this._core = core;
             _spawn = spawnBehavior;
             this._default = defaultBehavior;
             foreach(Behavior behavior in behaviors)
             {
-                AddBehavior(behavior);
+                AddBehavior(behavior, defaultSetID);
             }
 
         }
@@ -46,25 +51,36 @@ namespace Mosaic
             Transition(_spawn);
         }            
 
-        public Guid AddBehavior(Behavior behavior)
+        public Guid AddBehavior(Behavior behavior, Guid setID)
         {
             Guid id = Guid.NewGuid();
-            _behaviorsByID.Add(id, behavior);
+            _behaviorsByID.Add(id, (behavior, setID));
+            _behaviorIDsBySetID.TryAdd(setID, new List<Guid>());
+            _behaviorIDsBySetID[setID].Add(id);
             return id;
         }
         public void RemoveBehavior(Guid behaviorID)
         {
+            Guid setID = _behaviorsByID[behaviorID].Item2;
             _behaviorsByID.Remove(behaviorID);
+            _behaviorIDsBySetID[setID].Remove(behaviorID);
+
+        }
+        public void RemoveSet(Guid setID)
+        {
+            foreach(Guid id in _behaviorIDsBySetID[setID])
+            {
+                RemoveBehavior(id);
+            }
         }
 
-
-        public static Behavior DecideNewBehavior(Dictionary<Guid, Behavior> behaviors, ICore core, List<HashSet<BehaviorType>> activeComboSequence)
+        public static Behavior DecideNewBehavior(Dictionary<Guid, (Behavior, Guid)> behaviors, ICore core, List<HashSet<BehaviorType>> activeComboSequence)
         {
             Behavior finalBehavior = null;
             float finalValue = 0;
-            foreach (Behavior checkBehavior in behaviors.Values)
+            foreach ((Behavior, Guid) checkBehavior in behaviors.Values)
             {
-                float checkValue = checkBehavior.GetDecisionValue(core, activeComboSequence);
+                float checkValue = checkBehavior.Item1.GetDecisionValue(core, activeComboSequence);
 
                 if(checkValue <= 0)
                 {
@@ -72,19 +88,18 @@ namespace Mosaic
                 }
                 else if (checkValue > finalValue)
                 {
-                    finalBehavior = checkBehavior;
+                    finalBehavior = checkBehavior.Item1;
                     finalValue = checkValue;
                 }
                 else if (checkValue == finalValue)
                 {
-                    if (checkBehavior.Priority == finalBehavior.Priority)
+                    if (checkBehavior.Item1.Priority == finalBehavior.Priority)
                     {
-
-                        throw new System.Exception("Value of: "+checkValue + " Can't decide between "+ checkBehavior + " and " + finalBehavior + " multiple behaviors with the same decision value, and the same priority");
+                        throw new System.Exception("Value of: "+checkValue + " Can't decide between "+ checkBehavior.Item1 + " and " + finalBehavior + " multiple behaviors with the same decision value, and the same priority");
                     }
-                    else if (checkBehavior.Priority > finalBehavior.Priority)
+                    else if (checkBehavior.Item1.Priority > finalBehavior.Priority)
                     {
-                        finalBehavior = checkBehavior;
+                        finalBehavior = checkBehavior.Item1;
                     }
                 }
             }
@@ -159,8 +174,9 @@ namespace Mosaic
     public interface IStateMachine
     {
         public BehaviorInstance GetCurrentInstance();
-        public Guid AddBehavior(Behavior behavior);
+        public Guid AddBehavior(Behavior behavior, Guid setID);
         public void RemoveBehavior(Guid behaviorID);
+        public void RemoveSet(Guid setID);
         public void Transition();
         public bool TryTransition();
         public void Transition(Behavior nextBehavior);

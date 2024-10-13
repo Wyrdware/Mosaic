@@ -7,7 +7,7 @@ namespace Mosaic
     public interface IModifier
     {
         public int GetPriority();
-        public void SetProcess(Guid id, ModifierProcess process);
+        public void Initialize(ModifierProcess process, Guid id, Guid setID);
         public YieldInstruction Yield();
         public bool EndCondition();
         public void Begin();
@@ -24,14 +24,16 @@ namespace Mosaic
     {
 
         private ModifierProcess _process;
-        private Guid _id;
+
+
+        protected Guid SetID;
         public int GetPriority()
         {
             return -1;
         }
-        public void SetProcess(Guid id, ModifierProcess process)
-        {
-            _id = id;
+        public void Initialize(ModifierProcess process, Guid id, Guid setID)
+        { 
+            SetID = setID;
             _process = process;
         }
         protected ICore GetCore()

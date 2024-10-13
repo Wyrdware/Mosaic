@@ -13,7 +13,7 @@ namespace Mosaic
         }
         public override void Tick()
         {
-            Debug.Log("TestModDecorator Tick is encapsulating" + GetModifier());
+            Debug.Log("TestModDecorator Tick is encapsulating" + GetModifier() + " SET ID: " + SetID);
             base.Tick();
             
         }

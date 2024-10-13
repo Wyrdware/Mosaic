@@ -10,7 +10,7 @@ namespace Mosaic
         public abstract bool EndCondition();
         public abstract Type GetComponentType();
         public abstract int GetPriority();
-        public abstract void SetProcess(Guid id, ModifierProcess process);
+        public abstract void Initialize(ModifierProcess process, Guid id, Guid setID);
         public abstract void Tick();
         public abstract YieldInstruction Yield();
     }
@@ -18,7 +18,13 @@ namespace Mosaic
     {
         [SerializeField]
         private int _priority;
+
+        //This is used to access the child of the decorator
         private Guid _id;
+
+
+        //this allows the decorator to propogate it's own set to any generated instances
+        protected Guid SetID;
 
         private ModifierProcess _process;
 
@@ -26,9 +32,10 @@ namespace Mosaic
         {
             return _priority;
         }
-        public sealed override void SetProcess(Guid id, ModifierProcess process)
+        public sealed override void Initialize(ModifierProcess process, Guid id, Guid setID)
         {
             _id = id;
+            SetID = setID;
             _process = process;
         }
         public sealed override Type GetComponentType()
