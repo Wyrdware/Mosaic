@@ -144,13 +144,19 @@ namespace Mosaic
         }
         public void RemoveSet(Guid setID)
         {
-            foreach(Guid id in _processIDsBySetID[setID])
+            if(_processIDsBySetID.ContainsKey(setID))
             {
-                RemoveModifier(id);
+                foreach (Guid id in _processIDsBySetID[setID])
+                {
+                    RemoveModifier(id);
+                }
             }
-            foreach(Guid id in _decoratorIDsBySetID[setID])
+            if (_decoratorIDsBySetID.ContainsKey(setID))
             {
-                RemoveModifierDecorator(id);
+                foreach (Guid id in _decoratorIDsBySetID[setID])
+                {
+                    RemoveModifierDecorator(id);
+                }
             }
         }
     }
