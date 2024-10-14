@@ -146,14 +146,16 @@ namespace Mosaic
         {
             if(_processIDsBySetID.ContainsKey(setID))
             {
-                foreach (Guid id in _processIDsBySetID[setID])
+                List<Guid> processIDs = _processIDsBySetID[setID];
+                foreach (Guid id in processIDs)
                 {
                     RemoveModifier(id);
                 }
             }
             if (_decoratorIDsBySetID.ContainsKey(setID))
             {
-                foreach (Guid id in _decoratorIDsBySetID[setID])
+                List<Guid> decoratorIDs = _decoratorIDsBySetID[setID];
+                foreach (Guid id in decoratorIDs)
                 {
                     RemoveModifierDecorator(id);
                 }
