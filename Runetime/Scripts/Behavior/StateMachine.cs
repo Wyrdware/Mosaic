@@ -68,9 +68,12 @@ namespace Mosaic
         }
         public void RemoveSet(Guid setID)
         {
-            foreach(Guid id in _behaviorIDsBySetID[setID])
+            if (_behaviorIDsBySetID.ContainsKey(setID))
             {
-                RemoveBehavior(id);
+                foreach (Guid id in _behaviorIDsBySetID[setID])
+                {
+                    RemoveBehavior(id);
+                } 
             }
         }
 
