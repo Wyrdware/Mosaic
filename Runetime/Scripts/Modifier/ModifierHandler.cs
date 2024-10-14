@@ -146,7 +146,7 @@ namespace Mosaic
         {
             if(_processIDsBySetID.ContainsKey(setID))
             {
-                List<Guid> processIDs = _processIDsBySetID[setID];
+                List<Guid> processIDs = new(_processIDsBySetID[setID]);
                 foreach (Guid id in processIDs)
                 {
                     RemoveModifier(id);
@@ -154,7 +154,7 @@ namespace Mosaic
             }
             if (_decoratorIDsBySetID.ContainsKey(setID))
             {
-                List<Guid> decoratorIDs = _decoratorIDsBySetID[setID];
+                List<Guid> decoratorIDs = new( _decoratorIDsBySetID[setID]);
                 foreach (Guid id in decoratorIDs)
                 {
                     RemoveModifierDecorator(id);
