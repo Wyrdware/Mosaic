@@ -15,12 +15,15 @@ namespace Mosaic
     [RequireComponent(typeof(CoreInput))]
     public class Core : MonoBehaviour, ICore
     {
+        [Header("Default Behaviors")]
         [Tooltip("This behavior will activate when the entity is spawned.")]
         [SerializeField]
         private Behavior _spawnBehavior;
         [Tooltip("The actor will default to this behavior whenever there is not a valid behavior to transition to.")]
         [SerializeField]
         private Behavior _defaultBehavior;
+
+        [Header("Generic Set")]
         [Tooltip("The starting behaviors of the actor.")]
         [SerializeField]
         private List<Behavior> _behaviors;
@@ -29,20 +32,22 @@ namespace Mosaic
         private List<Modifier> _modifiers;
         [SerializeField]
         private List<ModifierDecorator> _modifierDecorators;
-        [Tooltip("Event modifiers activate whenever the corresponding event is triggered.")]
+
+        [Header("Starting Set Inventory")]
+        [Tooltip("Sets of modules that have been grouped together.")]
         [SerializeField]
-        private List<ModifierEventHandler.EventMods> _eventModifiers;//Event modifiers were a solution to a problem that may be better addressed by decorators entirely, needs more research might be obsolete.
+        private List<ModuleSet> _sets;
+
 
         private StateMachine _stateMachine;
-
+        private SetInventory _inventory;
         public CoreInput Input { get; private set; }
         public IDataTagRepository DataTags { get; private set; }
         public ModifierHandler Modifiers { get; private set; }
-        public ModifierEventHandler ModifierEvents { get; private set; }
-
         public IStateMachine StateMachine => _stateMachine;
-
         public MonoBehaviour monoBehaviour => this;
+
+        public ISetInventory Inventory => _inventory;
 
         private Guid _defaultSetID = new Guid();
 
@@ -56,9 +61,9 @@ namespace Mosaic
             }
             _stateMachine = new StateMachine(this,_spawnBehavior, _defaultBehavior, _behaviors, _defaultSetID);
             _stateMachine.Begin();
-
             Modifiers = new ModifierHandler(this, _modifiers, _modifierDecorators, _defaultSetID);
-            ModifierEvents = new ModifierEventHandler(this, _eventModifiers);
+
+            _inventory = new SetInventory(this, _sets);
 
         }
         public void ReSpawn()
@@ -72,8 +77,9 @@ namespace Mosaic
             }
             _stateMachine.OnRespawn();
             Modifiers.OnRespawn(_modifiers, _modifierDecorators);
-            ModifierEvents.OnRespawn(_eventModifiers);
             
+            //Re-apply the sets to the core
+            _inventory.OnRespawn();
         }
         public void SetSpawn(Vector3 position, Quaternion rotation)
         {
@@ -94,9 +100,12 @@ namespace Mosaic
         public Transform transform { get; }
         public IDataTagRepository DataTags { get; }
         public ModifierHandler Modifiers { get;}
-        public ModifierEventHandler ModifierEvents { get;}
 
+        public void RemoveSet(Guid setID);
+        public void SetSpawn(Vector3 position, Quaternion rotation);
+        public void ReSpawn();
         public IStateMachine StateMachine { get; }
+        public ISetInventory Inventory { get; }
 
 
     }

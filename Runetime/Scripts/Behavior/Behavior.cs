@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mosaic
 {
-    [CreateAssetMenu(fileName = "Behavior", menuName = "CharacterModule/Behavior", order = 1)]
+    [CreateAssetMenu(fileName = "Behavior", menuName = "Mosaic / Behavior", order = 1)]
     public class Behavior : ScriptableObject
     {
         [TextArea(3, 10)]

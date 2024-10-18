@@ -70,7 +70,8 @@ namespace Mosaic
         {
             if (_behaviorIDsBySetID.ContainsKey(setID))
             {
-                foreach (Guid id in _behaviorIDsBySetID[setID])
+                List<Guid> behaviorsToRemove = new(_behaviorIDsBySetID[setID]);
+                foreach (Guid id in behaviorsToRemove)
                 {
                     RemoveBehavior(id);
                 } 
