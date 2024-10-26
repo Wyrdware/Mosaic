@@ -22,9 +22,7 @@ namespace Mosaic
     [System.Serializable]
     public abstract class Modifier : ScriptableObject , IModifier
     {
-
         private ModifierProcess _process;
-
 
         protected Guid SetID;
         public int GetPriority()

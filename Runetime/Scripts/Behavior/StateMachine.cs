@@ -9,26 +9,21 @@ namespace Mosaic
     public class StateMachine : IStateMachine
     {
         private Core _core;
-
         private Behavior _spawn;
-
         private Behavior _default;//only active if all else is 0. 
 
         //ID, Behavior, SetID
         private Dictionary<Guid, (Behavior, Guid)> _behaviorsByID = new();
-
         //SetID BehaviorIDs
         private readonly Dictionary<Guid, List<Guid>> _behaviorIDsBySetID = new();
 
-        //TODO: Replace _currentBehavior with a list of behaviors, the behaviors all get pushed back when a new behavior is added, keeping the current behavior at the front.
-        //This will allow for us to check for a sequence of behaviors, and not just the current one when developing combo attacks/actions.
-        private Behavior _currentBehavior; // we save the entire module instead of something like the index because the size of the list is highly dynamic.
-
+        private Behavior _currentBehavior;
         private BehaviorInstance _currentInstance;
 
         private List<HashSet<BehaviorType>> _comboSequence = new();
 
-
+        private Action<BehaviorInstance> _onBehaviorExit;
+        private Action<BehaviorInstance> _onBehaviorEnter;
 
         public StateMachine(Core core, Behavior spawnBehavior, Behavior defaultBehavior, List<Behavior> behaviors, Guid defaultSetID)
         {
@@ -78,7 +73,7 @@ namespace Mosaic
             }
         }
 
-        public static Behavior DecideNewBehavior(Dictionary<Guid, (Behavior, Guid)> behaviors, ICore core, List<HashSet<BehaviorType>> activeComboSequence)
+        private static Behavior DecideNewBehavior(Dictionary<Guid, (Behavior, Guid)> behaviors, ICore core, List<HashSet<BehaviorType>> activeComboSequence)
         {
             Behavior finalBehavior = null;
             float finalValue = 0;
@@ -110,7 +105,10 @@ namespace Mosaic
             return finalBehavior;
         }
 
-
+        /// <summary>
+        /// Attempt to transition to the highest scored behavior. If not behaviors are valid continue the current behavior.
+        /// </summary>
+        /// <returns></returns>
         public bool TryTransition()
         {
             Behavior nextBehavior = DecideNewBehavior(_behaviorsByID, _core, _comboSequence);
@@ -124,10 +122,13 @@ namespace Mosaic
                 return false;
             }
         }
+
+        /// <summary>
+        /// Transition to the best behavior. If there is not valid option, transition to default. 
+        /// </summary>
         public void Transition()
         {
             Behavior nextBehavior = DecideNewBehavior(_behaviorsByID, _core, _comboSequence);
-
             EnterNewBehavior(nextBehavior);
         }
         /// <summary>
@@ -136,8 +137,6 @@ namespace Mosaic
         /// <param name="nextBehavior"></param>
         public void Transition(Behavior nextBehavior)
         {
-            
-
             EnterNewBehavior(nextBehavior);
         }
 
@@ -146,14 +145,30 @@ namespace Mosaic
             TransformDataTag transformDataTag = _core.DataTags.GetTag<TransformDataTag>();
             transformDataTag.Position = _core.transform.position;
             transformDataTag.Rotation = _core.transform.rotation;
-            _currentInstance.transform.position = _core.transform.position;
-            _currentInstance.transform.rotation = _core.transform.rotation;
+            _currentInstance.transform.SetPositionAndRotation(_core.transform.position, _core.transform.rotation);
             Transition(_spawn);
+        }
+
+        public void SubscribeToExit(Action<BehaviorInstance> onBehaviorExit)
+        {
+            _onBehaviorExit += onBehaviorExit;
+        }
+        public void UnsubscribeToExit(Action<BehaviorInstance> onBehaviorExit)
+        {
+            _onBehaviorExit -= onBehaviorExit;
+        }
+        public void SubscribeToEnter(Action<BehaviorInstance> onBehaviorEnter)
+        {
+            _onBehaviorEnter += onBehaviorEnter;
+        }
+        public void UnsubscribeToEnter(Action<BehaviorInstance> onBehaviorEnter)
+        {
+            _onBehaviorEnter -= onBehaviorEnter;
         }
 
         private void EnterNewBehavior(Behavior nextBehavior)//choose a new behavior, This module doesn't need to be housed within this class.
         {
-
+            _onBehaviorExit?.Invoke(_currentInstance);
 
             if (nextBehavior == null)
             {
@@ -167,7 +182,9 @@ namespace Mosaic
 
             if (_currentInstance != null) _currentInstance.Exit();
             _currentInstance = BehaviorInstance.EnterNewInstance(nextBehavior.Instance, _core);
-            Debug.Log("Transition to new behavior! " + _currentBehavior + ", " + _currentInstance);
+            Debug.Log("Transitioned to: " + _currentBehavior + ", " + _currentInstance);
+
+            _onBehaviorEnter?.Invoke(_currentInstance);
         }
 
         public BehaviorInstance GetCurrentInstance()

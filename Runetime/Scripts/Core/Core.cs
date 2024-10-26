@@ -49,7 +49,7 @@ namespace Mosaic
 
         public ISetInventory Inventory => _inventory;
 
-        private Guid _defaultSetID = new Guid();
+        private Guid _defaultSetID = Guid.Empty;
 
         private void Awake()
         {
@@ -61,7 +61,7 @@ namespace Mosaic
             }
             _stateMachine = new StateMachine(this,_spawnBehavior, _defaultBehavior, _behaviors, _defaultSetID);
             _stateMachine.Begin();
-            Modifiers = new ModifierHandler(this, _modifiers, _modifierDecorators, _defaultSetID);
+            Modifiers = new ModifierHandler(this, _modifiers, _modifierDecorators);
 
             _inventory = new SetInventory(this, _sets);
 

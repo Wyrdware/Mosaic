@@ -20,27 +20,51 @@ namespace Mosaic
         private readonly Dictionary<Guid, List<Guid>> _processIDsBySetID = new();
         private readonly Dictionary<Guid, List<Guid>> _decoratorIDsBySetID = new();
 
+        private Action<Modifier> _onAddMod;
+        private Action<Modifier> _onRemoveMod;
+        private Action<ModifierDecorator> _onAddDecorator;
+        private Action<ModifierDecorator> _onRemoveDecorator;
 
-
-        public ModifierHandler(ICore core, List<Modifier> modifiers, List<ModifierDecorator> decorators, Guid defaultSetID)
+        public ModifierHandler(ICore core, List<Modifier> modifiers, List<ModifierDecorator> decorators)
         {
             _core = core;
 
             foreach(ModifierDecorator decorator in decorators)
             {
-                AddModifierDecorator(decorator, defaultSetID);
+                AddModifierDecorator(decorator, Guid.Empty);
             }
             foreach(Modifier modifier in modifiers)
             {
-                AddModifier(modifier, _core, defaultSetID);
+                AddModifier(modifier, _core, Guid.Empty);
             }
         }
         public void OnRespawn(List<Modifier> modifiers, List<ModifierDecorator> decorators)
         {
-            Debug.LogWarning("OnReSpawn not implemented for modifiers");
+            //remove all modifiers first to avoid reordering the lists
+            List<Guid> processIDs = new(_processByID.Keys);
+            foreach (Guid id in processIDs)
+            {
+                RemoveModifier(id);
+            }
+            //remove all decorators
+            List<Guid> decoratorIDs = new(_decoratorByID.Keys);
+            foreach (Guid id in decoratorIDs)
+            {
+                RemoveModifierDecorator(id);
+            }
+            
+            //adding decorators first is more efficient because the list won't need to be reordered
+            foreach (ModifierDecorator decorator in decorators)
+            {
+                AddModifierDecorator(decorator, Guid.Empty);
+            }
+            foreach (Modifier modifier in modifiers)
+            {
+                AddModifier(modifier, _core, Guid.Empty);
+            }
         }
 
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -73,8 +97,9 @@ namespace Mosaic
                     _processByID[processID].Item1.AddDecorator(decorator, id, setID);
                 }
             }
+            
 
-
+            _onAddDecorator?.Invoke(decorator);  
             return id;
         }
 
@@ -97,6 +122,8 @@ namespace Mosaic
             _decoratorByID.Remove(id);
             _decoratorsByType[decorator.GetComponentType()].Remove(id);
 
+
+            _onRemoveDecorator?.Invoke(decorator);
         }
 
         public Guid AddModifier( Modifier modifier, ICore origin, Guid setID)
@@ -131,16 +158,22 @@ namespace Mosaic
             
             } );//When a modifier is removed, there is no need to worry about the decorators since they are part of the object
 
+
+            _onAddMod?.Invoke(modifier);
             return id;
 
         }
         public void RemoveModifier(Guid id)
         {
             Guid setID = _processByID[id].Item2;
+            
             ModifierProcess process = _processByID[id].Item1;
+            Modifier modifier = process.GetModifier() as Modifier;
             _processIDsBySetID[setID].Remove(id);
             process.Clear();
 
+
+            _onRemoveMod?.Invoke(modifier);
         }
         public void RemoveSet(Guid setID)
         {
@@ -161,5 +194,39 @@ namespace Mosaic
                 }
             }
         }
+
+        public void SubscribeToModAdded(Action<Modifier> onModAdded)
+        {
+            _onAddMod += onModAdded;
+        }
+        public void UnsubscribeToModAdded(Action<Modifier> onModAdded)
+        {
+            _onAddMod -= onModAdded;
+        }
+        public void SubscribeToModRemoved(Action<Modifier> onModRemoved)
+        {
+            _onRemoveMod += onModRemoved;
+        }
+        public void UnsubscribeToModRemoved(Action<Modifier> onModRemoved)
+        {
+            _onRemoveMod -= onModRemoved;
+        }
+        public void SubscribeToDecoratorAdded(Action<ModifierDecorator> onDecoratorAdded)
+        {
+            _onAddDecorator += onDecoratorAdded;
+        }
+        public void UnsubscribeToDecoratorAdded(Action<ModifierDecorator> onDecoratorAdded)
+        {
+            _onAddDecorator -= onDecoratorAdded;
+        }
+        public void SubscribeToDecoratorRemoved(Action<ModifierDecorator> onDecoratorRemoved)
+        {
+            _onRemoveDecorator += onDecoratorRemoved;
+        }
+        public void UnsubscribeToDecoratorRemoved(Action<ModifierDecorator> onDecoratorRemoved)
+        {
+            _onRemoveDecorator -= onDecoratorRemoved;
+        }
+
     }
 }

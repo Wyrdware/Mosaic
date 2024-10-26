@@ -32,6 +32,7 @@ namespace Mosaic
                 _dataTags.Add(typeof(T), tag);
                 tag.SetHandler(this);
                 addedEventDispatcher.TriggerEvent<T>(tag);
+                updatedEventDispatcher.TriggerEvent<T>(tag);
             }
         }
 
