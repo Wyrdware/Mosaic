@@ -201,6 +201,9 @@ namespace Mosaic
         public void Transition();
         public bool TryTransition();
         public void Transition(Behavior nextBehavior);
-
+        public void SubscribeToExit(Action<BehaviorInstance> onBehaviorExit);
+        public void UnsubscribeToExit(Action<BehaviorInstance> onBehaviorExit);
+        public void SubscribeToEnter(Action<BehaviorInstance> onBehaviorEnter);
+        public void UnsubscribeToEnter(Action<BehaviorInstance> onBehaviorEnter);
     }
 }
