@@ -30,7 +30,6 @@ namespace Mosaic
         {
             _setsByID.Add(setID, set);
             Activate(setID);
-
             _onSetUpdated?.Invoke(setID);
         }
         public void RemoveItem(Guid setID)
@@ -87,7 +86,14 @@ namespace Mosaic
         {
             _onSetUpdated -= onSetUpdated;
         }
+        public void OnRespawnBegin()
+        {
 
+        }
+        public void OnRespawnEnd()
+        {
+
+        }
         public void OnRespawn()
         {
             foreach(Guid set in _setsByID.Keys)
