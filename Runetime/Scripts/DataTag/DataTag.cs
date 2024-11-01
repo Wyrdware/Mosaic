@@ -15,6 +15,13 @@ namespace Mosaic
     {
         private IDataTagUpdateEventTrigger _updateEventTrigger;
 
+        /// <summary>
+        /// Set all non persistent values to there default. The standard structure for a DataTag includes Default values and active values.
+        /// Active values should be set back to there defaults on respawn. This includes values such as position, movement speed, health, etc.
+        /// persistent values such as death count, score, inventory, etc should not be updated.
+        /// </summary>
+        public abstract void OnRespawn();
+
         public object Clone()
         {
             return this.MemberwiseClone();
@@ -36,13 +43,30 @@ namespace Mosaic
 
     public class TransformDataTag  : DataTag
     {
+        public Vector3 DefaultPosition;
+        public Quaternion DefaultRotation;
+
         public Vector3 Position;
         public Quaternion Rotation;
+
+        public override void OnRespawn()
+        {
+            Position = DefaultPosition;
+            Rotation = DefaultRotation;
+        }
     }
     public class MovementDataTag : DataTag
     {
+        public Vector3 DefaultDirection;
+        public Vector3 DefaultVelocity;
         public Vector3 InputDirection;
         public Vector3 Velocity;
+
+        public override void OnRespawn()
+        {
+            InputDirection = DefaultDirection;
+            Velocity = DefaultVelocity;
+        }
     }
 
 }

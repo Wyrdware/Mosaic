@@ -9,9 +9,9 @@ namespace Mosaic
     public class DataTagRepository : IDataTagRepository, IDataTagUpdateEventTrigger
     {
         private Dictionary<Type, DataTag> _dataTags = new Dictionary<Type, DataTag>();
-        DynamicEventDispatcher addedEventDispatcher = new();
-        DynamicEventDispatcher updatedEventDispatcher = new();
-        DynamicEventDispatcher removedEventDispatcher = new();
+        private DynamicEventDispatcher addedEventDispatcher = new();
+        private DynamicEventDispatcher updatedEventDispatcher = new();
+        private DynamicEventDispatcher removedEventDispatcher = new();
 
         /// <summary>
         /// Add or update a tag of type T. If the tag already exists it will be replaced with the new tag.

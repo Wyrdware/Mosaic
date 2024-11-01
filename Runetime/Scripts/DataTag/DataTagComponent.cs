@@ -8,14 +8,13 @@ namespace Mosaic
     {
         public void AddTagToCore(Core core);
     }
-    public abstract class InspectorDataTag<T> : MonoBehaviour,IInspectorDataTag where T : DataTag
+    public abstract class InspectorDataTag<T> : MonoBehaviour, IInspectorDataTag where T : DataTag
     {
         [SerializeField]
         protected T _data;
         public void AddTagToCore(Core core)
         {
-            T data = (T) _data.Clone();
-            core.DataTags.AddOrUpdateTag<T>(data);
+            core.DataTags.AddOrUpdateTag<T>(_data);
         }
 
 
