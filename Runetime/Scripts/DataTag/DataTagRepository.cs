@@ -75,7 +75,10 @@ namespace Mosaic
 
         public void OnRespawn()
         {
-            _dataTags.Clear();
+            foreach(DataTag tag in _dataTags.Values)
+            {
+                tag.OnRespawn();
+            }
 
         }
 
