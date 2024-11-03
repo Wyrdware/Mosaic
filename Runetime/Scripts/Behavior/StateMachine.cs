@@ -22,8 +22,8 @@ namespace Mosaic
 
         private List<HashSet<BehaviorType>> _comboSequence = new();
 
-        private Action<BehaviorInstance> _onBehaviorExit;
-        private Action<BehaviorInstance> _onBehaviorEnter;
+        private Action<HashSet<BehaviorType>> _onBehaviorExit;
+        private Action<HashSet<BehaviorType>> _onBehaviorEnter;
 
         public StateMachine(Core core, Behavior spawnBehavior, Behavior defaultBehavior, List<Behavior> behaviors, Guid defaultSetID)
         {
@@ -149,26 +149,26 @@ namespace Mosaic
             Transition(_spawn);
         }
 
-        public void SubscribeToExit(Action<BehaviorInstance> onBehaviorExit)
+        public void SubscribeToExit(Action<HashSet<BehaviorType>> onBehaviorExit)
         {
             _onBehaviorExit += onBehaviorExit;
         }
-        public void UnsubscribeToExit(Action<BehaviorInstance> onBehaviorExit)
+        public void UnsubscribeToExit(Action<HashSet<BehaviorType>> onBehaviorExit)
         {
             _onBehaviorExit -= onBehaviorExit;
         }
-        public void SubscribeToEnter(Action<BehaviorInstance> onBehaviorEnter)
+        public void SubscribeToEnter(Action<HashSet<BehaviorType>> onBehaviorEnter)
         {
             _onBehaviorEnter += onBehaviorEnter;
         }
-        public void UnsubscribeToEnter(Action<BehaviorInstance> onBehaviorEnter)
+        public void UnsubscribeToEnter(Action<HashSet<BehaviorType>> onBehaviorEnter)
         {
             _onBehaviorEnter -= onBehaviorEnter;
         }
 
         private void EnterNewBehavior(Behavior nextBehavior)//choose a new behavior, This module doesn't need to be housed within this class.
         {
-            _onBehaviorExit?.Invoke(_currentInstance);
+            _onBehaviorExit?.Invoke(_currentBehavior.BehaviorTypes);
 
             if (nextBehavior == null)
             {
@@ -184,7 +184,7 @@ namespace Mosaic
             _currentInstance = BehaviorInstance.EnterNewInstance(nextBehavior.Instance, _core);
             Debug.Log("Transitioned to: " + _currentBehavior + ", " + _currentInstance);
 
-            _onBehaviorEnter?.Invoke(_currentInstance);
+            _onBehaviorEnter?.Invoke(_currentBehavior.BehaviorTypes);
         }
 
         public BehaviorInstance GetCurrentInstance()
@@ -201,9 +201,9 @@ namespace Mosaic
         public void Transition();
         public bool TryTransition();
         public void Transition(Behavior nextBehavior);
-        public void SubscribeToExit(Action<BehaviorInstance> onBehaviorExit);
-        public void UnsubscribeToExit(Action<BehaviorInstance> onBehaviorExit);
-        public void SubscribeToEnter(Action<BehaviorInstance> onBehaviorEnter);
-        public void UnsubscribeToEnter(Action<BehaviorInstance> onBehaviorEnter);
+        public void SubscribeToExit(Action<HashSet<BehaviorType>> onBehaviorExit);
+        public void UnsubscribeToExit(Action<HashSet<BehaviorType>> onBehaviorExit);
+        public void SubscribeToEnter(Action<HashSet<BehaviorType>> onBehaviorEnter);
+        public void UnsubscribeToEnter(Action<HashSet<BehaviorType>> onBehaviorEnter);
     }
 }
