@@ -157,8 +157,9 @@ namespace Mosaic
                 _processByID.Remove(id);
             
             } );//When a modifier is removed, there is no need to worry about the decorators since they are part of the object
-
-
+            
+            // Now that it's set up, start the modifier
+            newProcess.StartModifier();
             _onAddMod?.Invoke(modifier);
             return id;
 

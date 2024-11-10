@@ -24,7 +24,7 @@ namespace Mosaic
 
         private readonly float _startTime;
 
-        private readonly Coroutine _process;
+        private Coroutine _process;
         private readonly bool _isInstance = false;
 
         public delegate void EndEventHandler();
@@ -44,7 +44,7 @@ namespace Mosaic
             _isInstance = true;
             _startTime = Time.time;
 
-            //Instanciate modifier
+            //Instantiate modifier
             Modifier instance = ScriptableObject.Instantiate(modifier);
             instance.Initialize(this, id, setID);
             _instance.Add(id, instance);
@@ -52,12 +52,12 @@ namespace Mosaic
             
             //Instanciate decorators
             AddDecorator(decorators);
-
+        }
+        public void StartModifier()
+        {
             //Start Process
             _process = _core.monoBehaviour.StartCoroutine(Process());
-
         }
-
         private IModifier CreateDecorator(ModifierDecorator decorator,Guid id, Guid setID)
         {
             ScriptableObject decoratorAsSO = (ScriptableObject)decorator;//This mess of casting feels awful and is confusing to look at, but it works so I'm leaving it for now
