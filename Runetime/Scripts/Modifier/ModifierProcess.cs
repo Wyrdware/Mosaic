@@ -161,6 +161,7 @@ namespace Mosaic
 
         private IEnumerator Process()
         {
+            yield return null;
             Debug.Log("APPLYING " );
             Begin();
 
@@ -169,7 +170,7 @@ namespace Mosaic
                 Tick();
                 yield return Yield();
             }
-            yield return null;
+            //yield return null;
             Clear();
         }
 
