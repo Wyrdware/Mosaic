@@ -147,6 +147,10 @@ namespace Mosaic
             {
                 RemoveBehavior(id);
             }
+            foreach (Behavior behavior in behaviors)
+            {
+                AddBehavior(behavior, defaultSetID);
+            }
             TransformDataTag transformDataTag = _core.DataTags.GetTag<TransformDataTag>();
             transformDataTag.Position = _core.transform.position;
             transformDataTag.Rotation = _core.transform.rotation;
