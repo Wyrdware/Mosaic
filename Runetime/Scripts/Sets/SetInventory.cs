@@ -86,23 +86,15 @@ namespace Mosaic
         {
             _onSetUpdated -= onSetUpdated;
         }
-        public void OnRespawnBegin()
-        {
 
-        }
-        public void OnRespawnEnd()
+        public void OnRespawn(List<ModuleSet> startingModuleSets)
         {
-
-        }
-        public void OnRespawn()
-        {
-            foreach(Guid set in _setsByID.Keys)
+            _setsByID.Clear();
+            _activeIDs.Clear();
+            _onSetUpdated = null;
+            foreach (ModuleSet moduleSet in startingModuleSets)
             {
-                Deactivate(set);
-            }
-            foreach (Guid set in _setsByID.Keys)
-            {
-                Activate(set);
+                AddItem(moduleSet, Guid.NewGuid());
             }
         }
 

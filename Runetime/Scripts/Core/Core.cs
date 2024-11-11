@@ -68,14 +68,13 @@ namespace Mosaic
         }
         public void ReSpawn()
         {
-            Debug.LogWarning("Respawning not fully implemented, this will not be fully functional until data tracking has been implemented.");
-            Input.OnRespawn();
-            DataTags.OnRespawn();
-            _stateMachine.OnRespawn();
-            Modifiers.OnRespawn(_modifiers, _modifierDecorators);
+            Input.OnRespawn();// Input is reset, but handled in implementation
+            DataTags.OnRespawn();//Datatags are persistent with the oprotunity to adjust on respawn
+            _stateMachine.OnRespawn(_behaviors,_defaultSetID);
+            Modifiers.OnRespawn(_modifiers, _modifierDecorators);//Remove all of the modifiers, replace with default
             
-            //Re-apply the sets to the core
-            _inventory.OnRespawn();
+            
+            _inventory.OnRespawn(_sets);//Apply the default sets to the core. If
         }
         public void SetSpawn(Vector3 position, Quaternion rotation)
         {

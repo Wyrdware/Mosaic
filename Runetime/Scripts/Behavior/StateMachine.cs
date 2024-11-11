@@ -140,8 +140,13 @@ namespace Mosaic
             EnterNewBehavior(nextBehavior);
         }
 
-        public void OnRespawn()
+        public void OnRespawn(List<Behavior> behaviors, Guid defaultSetID)
         {
+            List<Guid> behaviorsToRemove = new List<Guid>( _behaviorsByID.Keys);
+            foreach(Guid id in behaviorsToRemove)
+            {
+                RemoveBehavior(id);
+            }
             TransformDataTag transformDataTag = _core.DataTags.GetTag<TransformDataTag>();
             transformDataTag.Position = _core.transform.position;
             transformDataTag.Rotation = _core.transform.rotation;
