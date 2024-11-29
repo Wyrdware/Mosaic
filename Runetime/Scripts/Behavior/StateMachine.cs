@@ -200,10 +200,15 @@ namespace Mosaic
         {
             return _currentInstance;
         }
+        public HashSet<BehaviorType> GetCurrentBehaviorType()
+        {
+            return _currentBehavior.BehaviorTypes;
+        }
     }
     public interface IStateMachine
     {
         public BehaviorInstance GetCurrentInstance();
+        public HashSet<BehaviorType> GetCurrentBehaviorType();
         public Guid AddBehavior(Behavior behavior, Guid setID);
         public void RemoveBehavior(Guid behaviorID);
         public void RemoveSet(Guid setID);
