@@ -25,6 +25,7 @@ namespace Mosaic
         private readonly float _startTime;
 
         private Coroutine _process;
+        private bool _started = false;
         private readonly bool _isInstance = false;
 
         public delegate void EndEventHandler();
@@ -151,13 +152,12 @@ namespace Mosaic
             if (_process != null)
             {
                 _core.monoBehaviour.StopCoroutine(_process);
-                End();
             }
-            else
+            if (!_started)//If begin hasn't been called yet, we call it now to ensure consistent behavior when removing and adding on the same frame.
             {
                 Begin();
-                End();
             }
+            End();
 
             foreach(KeyValuePair<Guid, IModifier> instance in _instance)
             {
@@ -170,9 +170,11 @@ namespace Mosaic
         private IEnumerator Process()
         {
             
-            Debug.Log("APPLYING " );
-            Begin();
+            //We delay the process by a frame, this fixes some weird bugs. Needs more troublshooting to get to the root
             yield return null;
+            Debug.Log("APPLYING ");
+            _started = true;//This should be set to true just before begin so that begin doesn't get called twice.
+            Begin();
             while (EndCondition())
             {
                 Tick();
