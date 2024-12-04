@@ -148,8 +148,16 @@ namespace Mosaic
         public void Clear()
         {
             Debug.Assert(_isInstance);
-            _core.monoBehaviour.StopCoroutine(_process);
-            End();
+            if (_process != null)
+            {
+                _core.monoBehaviour.StopCoroutine(_process);
+                End();
+            }
+            else
+            {
+                Begin();
+                End();
+            }
 
             foreach(KeyValuePair<Guid, IModifier> instance in _instance)
             {
@@ -161,10 +169,10 @@ namespace Mosaic
 
         private IEnumerator Process()
         {
-            yield return null;
+            
             Debug.Log("APPLYING " );
             Begin();
-
+            yield return null;
             while (EndCondition())
             {
                 Tick();
