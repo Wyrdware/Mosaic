@@ -54,6 +54,13 @@ namespace Mosaic
             _behaviorIDsBySetID[setID].Add(id);
             return id;
         }
+        public void AddBehavior(List<Behavior> behaviors, Guid setID)
+        {
+            foreach(Behavior b in behaviors)
+            {
+                AddBehavior(b, setID);
+            }
+        }
         public void RemoveBehavior(Guid behaviorID)
         {
             Guid setID = _behaviorsByID[behaviorID].Item2;

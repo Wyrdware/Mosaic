@@ -40,14 +40,14 @@ namespace Mosaic
 
 
         private StateMachine _stateMachine;
-        private SetInventory _inventory;
+        //private SetInventory _inventory;
         public CoreInput Input { get; private set; }
         public IDataTagRepository DataTags { get; private set; }
         public ModifierHandler Modifiers { get; private set; }
         public IStateMachine StateMachine => _stateMachine;
         public MonoBehaviour monoBehaviour => this;
 
-        public ISetInventory Inventory => _inventory;
+      //  public ISetInventory Inventory => _inventory;
 
         private Guid _defaultSetID = Guid.Empty;
 
@@ -63,7 +63,7 @@ namespace Mosaic
             _stateMachine.Begin();
             Modifiers = new ModifierHandler(this, _modifiers, _modifierDecorators);
 
-            _inventory = new SetInventory(this, _sets);
+           // _inventory = new SetInventory(this, _sets);
 
         }
         public void ReSpawn()
@@ -74,7 +74,7 @@ namespace Mosaic
             Modifiers.OnRespawn(_modifiers, _modifierDecorators);//Remove all of the modifiers, replace with default
             
             
-            _inventory.OnRespawn(_sets);//Apply the default sets to the core. If
+           // _inventory.OnRespawn(_sets);//Apply the default sets to the core. If
         }
         public void SetSpawn(Vector3 position, Quaternion rotation)
         {
@@ -85,6 +85,14 @@ namespace Mosaic
         {
             _stateMachine.RemoveSet(setID);
             Modifiers.RemoveSet(setID);
+        }
+        public void AddModuleSet(ModuleSet set, Guid setID)
+        {
+            _stateMachine.AddBehavior(set.Behaviors, setID);
+            Modifiers.AddModifier(set.Modifiers, this, setID);
+            Modifiers.AddModifierDecorator(set.Decorators, setID);
+           
+            
         }
     }
 
@@ -100,7 +108,7 @@ namespace Mosaic
         public void SetSpawn(Vector3 position, Quaternion rotation);
         public void ReSpawn();
         public IStateMachine StateMachine { get; }
-        public ISetInventory Inventory { get; }
+        //public ISetInventory Inventory { get; }
 
 
     }

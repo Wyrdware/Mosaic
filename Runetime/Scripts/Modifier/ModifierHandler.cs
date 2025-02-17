@@ -102,7 +102,13 @@ namespace Mosaic
             _onAddDecorator?.Invoke(decorator);  
             return id;
         }
-
+        public void AddModifierDecorator(List<ModifierDecorator> decorators, Guid setID)
+        {
+            foreach(ModifierDecorator decorator in decorators)
+            {
+                AddModifierDecorator(decorators, setID);
+            }
+        }
         public void RemoveModifierDecorator(Guid id)
         {
             Guid setID = _decoratorByID[id].Item2;
@@ -163,6 +169,13 @@ namespace Mosaic
             _onAddMod?.Invoke(modifier);
             return id;
 
+        }
+        public void AddModifier(List<Modifier> modifiers, ICore origin, Guid setID)
+        {
+            foreach (Modifier modifier in modifiers)
+            {
+                AddModifier(modifier, origin, setID);
+            }
         }
         public void RemoveModifier(Guid id)
         {
