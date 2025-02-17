@@ -179,15 +179,18 @@ namespace Mosaic
         }
         public void RemoveModifier(Guid id)
         {
-            Guid setID = _processByID[id].Item2;
-            
-            ModifierProcess process = _processByID[id].Item1;
-            Modifier modifier = process.GetModifier() as Modifier;
-            _processIDsBySetID[setID].Remove(id);
-            process.Clear();
+            if (_processByID.ContainsKey(id))
+            {
+                Guid setID = _processByID[id].Item2;
+
+                ModifierProcess process = _processByID[id].Item1;
+                Modifier modifier = process.GetModifier() as Modifier;
+                _processIDsBySetID[setID].Remove(id);
+                process.Clear();
 
 
-            _onRemoveMod?.Invoke(modifier);
+                _onRemoveMod?.Invoke(modifier);
+            }
         }
         public void RemoveSet(Guid setID)
         {
