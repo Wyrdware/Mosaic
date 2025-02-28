@@ -191,14 +191,12 @@ namespace Mosaic
                 nextBehavior = _default;
                 Debug.LogWarning("No valid behavior, Transitioning to default module.");
             }
-            Debug.Log(_comboSequence.Count);
             _comboSequence.Insert(0, nextBehavior.BehaviorTypes);
             _core.Input.OverrideControl(null);
             _currentBehavior = nextBehavior;
 
             if (_currentInstance != null) _currentInstance.Exit();
             _currentInstance = BehaviorInstance.EnterNewInstance(nextBehavior.Instance, _core);
-            Debug.Log("Transitioned to: " + _currentBehavior + ", " + _currentInstance);
 
             _onBehaviorEnter?.Invoke(_currentBehavior.BehaviorTypes);
         }
