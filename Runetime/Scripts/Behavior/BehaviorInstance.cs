@@ -26,7 +26,7 @@ namespace Mosaic
 
             bool activeCache = instancePrefab.activeSelf;
             instancePrefab.SetActive(false);
-            GameObject InstanceGO = Instantiate(instancePrefab, transformDataTag.Position, transformDataTag.Rotation, character.transform.parent);
+            GameObject InstanceGO = Instantiate(instancePrefab, transformDataTag.Position, transformDataTag.Rotation, character.transform);
             instancePrefab.SetActive(activeCache);
 
             BehaviorInstance BehaviorInstance = InstanceGO.GetComponent<BehaviorInstance>() ;
