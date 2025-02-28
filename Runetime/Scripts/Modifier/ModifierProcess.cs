@@ -172,7 +172,6 @@ namespace Mosaic
             
             //We delay the process by a frame, this fixes some weird bugs. Needs more troublshooting to get to the root
             yield return null;
-            Debug.Log("APPLYING ");
             _started = true;//This should be set to true just before begin so that begin doesn't get called twice.
             Begin();
             while (EndCondition())
