@@ -94,6 +94,11 @@ namespace Mosaic
            
             
         }
+        private void OnDestroy()
+        {
+            Modifiers.ClearAllProcessies();
+
+        }
     }
 
     public interface ICore

@@ -49,7 +49,7 @@ namespace Mosaic
             }
             else//There is no way to guarentee a DataTag will never be null, so instead of performing a null check we automaticaly create a new tag. If you want to check if a tag exists use IsTagged<T>()
             {
-                Debug.Log(typeof(T) + " was not found, Creating new tag!");
+                Debug.Log("Mosaic: "+typeof(T) + " was not found, Creating new tag!");
                 T newTag = new();
                 _dataTags.Add(typeof(T), newTag);
                 newTag.SetHandler(this);

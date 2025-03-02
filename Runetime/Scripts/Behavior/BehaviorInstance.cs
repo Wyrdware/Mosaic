@@ -68,11 +68,11 @@ namespace Mosaic
 
         public virtual void ControlEnd()
         {
-            Debug.Log(this + " does not use ControlEnd input.");
+            Debug.Log("Mosaic: " + this + " does not use ControlEnd input.");
         }
         public virtual void ControlStart()
         {
-            Debug.Log(this + " does not use ControlStart input.");
+            Debug.Log("Mosaic: " + this + " does not use ControlStart input.");
         }
         #endregion
 

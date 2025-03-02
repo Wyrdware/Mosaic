@@ -63,6 +63,13 @@ namespace Mosaic
                 AddModifier(modifier, _core, Guid.Empty);
             }
         }
+        public void ClearAllProcessies()
+        {
+            foreach(var process in _processByID)
+            {
+                process.Value.Item1.Clear();
+            }
+        }
 
         
         /// <summary>
