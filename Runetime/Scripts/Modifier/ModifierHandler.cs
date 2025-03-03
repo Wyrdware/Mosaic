@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Mosaic
@@ -65,9 +66,9 @@ namespace Mosaic
         }
         public void ClearAllProcessies()
         {
-            foreach(var process in _processByID)
+            while (_processByID.Count > 0)
             {
-                process.Value.Item1.Clear();
+                _processByID.First().Value.Item1.Clear();
             }
         }
 
