@@ -1,8 +1,10 @@
 # Mosaic
 
-Mosaic facilitates the iteration, expansion, and re-use of gameplay mechanics allowing designers and developers to bring their vision to life. Use Mosaic to create gameplay actors, such as player characters, NPCs, and other stateful entities out of fully modular components. 
+Mosaic facilitates the iteration, expansion, and re-use of gameplay mechanics allowing designers and developers to bring their vision to life. Use Mosaic to create gameplay actors, such as player characters, NPCs, Interactables, and other stateful entities out of fully modular components. 
 
 So much of what game developers create gets thrown away due to the iterative nature of development. Mosaic’s modular approach allows designers to seamlessly remove, and add new gameplay elements to their actors without requiring unique code to tie the features together.
+
+Mosaic shares many similarities in terms of structure with the component game object model. It diverges slightly in establishing a set of base components that are fully modular that can be extended to implement any sort of functionality, from movement, to actions, to entire progression systems. These components include Behaviors, Modifiers, and Modifier Decorators. These are fully decoupled from each other and only interact with DataTags and a target monobehaviour. DataTags are a blackboard-like system that is type safe and auto initializes all incoming data if it hasn’t been already. This allows for an ECS style structure when developing characters, and ensures there are no dependencies between modules.
 
 ## Features
 
@@ -13,7 +15,6 @@ So much of what game developers create gets thrown away due to the iterative nat
 - Utilize Mosaic to craft rewards for your players that matter. By utilizing Mosaic elements as rewards, developers can introduce fundamental shifts to the gameplay experience without the risk of complexity creep. 
 
 - Each Mosaic element is fully decoupled from each other. Scale up your development by enabling a multitude of developers to work on various Mosaic elements at the same time.
-
 
 ## Getting Started
 
@@ -29,29 +30,7 @@ Give examples
 
 ### Installing
 
-A step-by-step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-
-
-
-
-
-## Contributing
-
+https://docs.unity3d.com/6000.1/Documentation/Manual/upm-ui-giturl.html
 
 ## Authors
 
@@ -60,9 +39,3 @@ Jared Goronkin
 ## License
 
 No License
-
-## Acknowledgments
-
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
