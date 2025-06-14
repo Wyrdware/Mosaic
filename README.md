@@ -7,6 +7,7 @@ So much of what game developers create gets thrown away due to the iterative nat
 Mosaic shares many similarities in terms of structure with the component game object model. It diverges slightly in establishing a set of base components that are fully modular that can be extended to implement any sort of functionality, from movement, to actions, to entire progression systems. These components include Behaviors, Modifiers, and Modifier Decorators. These are fully decoupled from each other and only interact with DataTags and a target monobehaviour. DataTags are a blackboard-like system that is type safe and auto initializes all incoming data if it hasn’t been already. This allows for an ECS style structure when developing characters, and ensures there are no dependencies between modules.
 
 ## Features
+Notice: Mosaic is undergoing significant structural revisions. Documentation may be out of date and will likely not reflect the final direction of the project. 
 
 - Seamlessly add and remove Mosaic gameplay elements from an existing actor.
 
