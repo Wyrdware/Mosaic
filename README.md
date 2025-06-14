@@ -24,10 +24,6 @@ These instructions will get you a copy of the project up and running on your loc
 
 You will need a copy of Unity 2022.3 LTS or later downloaded. Very few version-specific features are used so it should be fine across a variety of versions.
 
-```
-Give examples
-```
-
 ### Installing
 
 https://docs.unity3d.com/6000.1/Documentation/Manual/upm-ui-giturl.html
