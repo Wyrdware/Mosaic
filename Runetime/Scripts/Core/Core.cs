@@ -47,23 +47,27 @@ namespace Mosaic
         public IStateMachine StateMachine => _stateMachine;
         public MonoBehaviour monoBehaviour => this;
 
-      //  public ISetInventory Inventory => _inventory;
 
         private Guid _defaultSetID = Guid.Empty;
 
         private void Awake()
         {
+
+            LoadData();
+        }
+        private void LoadData()
+        {
             Input = GetComponent<CoreInput>();
             DataTags = new DataTagRepository();
-            foreach(IInspectorDataTag idt in GetComponents<IInspectorDataTag>())
+
+            foreach (IInspectorDataTag idt in GetComponents<IInspectorDataTag>())
             {
                 idt.AddTagToCore(this);
             }
-            _stateMachine = new StateMachine(this,_spawnBehavior, _defaultBehavior, _behaviors, _defaultSetID);
+            _stateMachine = new StateMachine(this, _spawnBehavior, _defaultBehavior, _behaviors, _defaultSetID);
             _stateMachine.Begin();
             Modifiers = new ModifierHandler(this, _modifiers, _modifierDecorators);
 
-           // _inventory = new SetInventory(this, _sets);
 
         }
         public void ReSpawn()
@@ -74,7 +78,7 @@ namespace Mosaic
             Modifiers.OnRespawn(_modifiers, _modifierDecorators);//Remove all of the modifiers, replace with default
             
             
-           // _inventory.OnRespawn(_sets);//Apply the default sets to the core. If
+
         }
         public void SetSpawn(Vector3 position, Quaternion rotation)
         {
@@ -113,7 +117,7 @@ namespace Mosaic
         public void SetSpawn(Vector3 position, Quaternion rotation);
         public void ReSpawn();
         public IStateMachine StateMachine { get; }
-        //public ISetInventory Inventory { get; }
+
 
 
     }

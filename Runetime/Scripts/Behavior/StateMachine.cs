@@ -36,8 +36,9 @@ namespace Mosaic
             {
                 AddBehavior(behavior, defaultSetID);
             }
-
         }
+        
+        
         public void Begin()// This must be called after every aspect of the character has been initialised. 
         {
             Debug.Assert(_currentInstance == null);

@@ -20,6 +20,9 @@ namespace Mosaic
         /// Active values should be set back to there defaults on respawn. This includes values such as position, movement speed, health, etc.
         /// persistent values such as death count, score, inventory, etc should not be updated.
         /// </summary>
+        /// 
+
+
         public abstract void OnRespawn();
 
         public object Clone()
